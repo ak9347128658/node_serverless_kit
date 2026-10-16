@@ -280,8 +280,8 @@ describe("built worker module", () => {
   test("scheduled: input found by cron", async () => {
     const mod = await import(pathToFileURL(workerFile).href);
     await mod.default.scheduled({ cron: "0 12 * * MON", scheduledTime: 1_700_000_000_000 }, { NSKIT_FUNCTION: "tick" }, ctx());
-    const tick = (): { type: string; data: unknown; source: string } =>
-      (globalThis as { __tick: { type: string; data: unknown; source: string } }).__tick;
+    type TickCapture = { type: string; data: unknown; source: string };
+    const tick = (): TickCapture => (globalThis as unknown as { __tick: TickCapture }).__tick;
     expect(tick()).toEqual({ type: "schedule", data: { report: "weekly" }, source: "0 12 * * MON" });
     await mod.default.scheduled({ cron: "*/5 * * * *", scheduledTime: 0 }, { NSKIT_FUNCTION: "tick" }, ctx());
     expect(tick().data).toBeNull();
