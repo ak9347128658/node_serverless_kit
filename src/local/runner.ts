@@ -17,7 +17,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { LoadOptions } from "../config/loader.js";
 import type { ServiceConfig } from "../config/schema.js";
-import { importSpecifier, runtimeSource } from "../core/paths.js";
+import { runtimeSpecifier } from "../core/paths.js";
 import { locateHandler, Project } from "../core/project.js";
 import { bundleEntry, entrySource } from "../packaging/builder.js";
 import { ORCHESTRATOR_HANDLER } from "../providers/base.js";
@@ -191,7 +191,7 @@ export class LocalRunner {
     mkdirSync(dir, { recursive: true });
     writeFileSync(path.join(dir, "nskit_manifest.json"), JSON.stringify(manifest, null, 2));
     writeFileSync(path.join(dir, "package.json"), '{"type":"commonjs"}\n');
-    const glue = `export * from ${JSON.stringify(importSpecifier(dir, runtimeSource("adapters/local")))};`;
+    const glue = `export * from ${JSON.stringify(runtimeSpecifier("adapters/local"))};`;
     const entry = path.join(dir, "nskit-entry.ts");
     writeFileSync(entry, entrySource(this.project, { entryDir: dir, manifest, glue }));
     const outFile = path.join(dir, "bundle.cjs");

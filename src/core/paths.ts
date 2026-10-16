@@ -36,6 +36,21 @@ export function publicApiSource(): string {
   return path.join(packageRoot(), "src", "index.ts");
 }
 
+/**
+ * Stable import specifier for a kit runtime module (`node-serverless-kit/runtime/manifest`).
+ *
+ * The generated entry lives under the user's `.nskit/` directory, which is often a different
+ * filesystem tree than the installed kit (temp-dir tests, a global install). A `path.relative`
+ * import then walks to `/` and back; on macOS `/var` is a symlink to `/private/var`, so esbuild
+ * realpath's the importer and the `../` chain lands on `/private/Users/...` instead of the kit.
+ * The bundler's alias plugin maps this specifier to {@link runtimeSource}.
+ */
+export const RUNTIME_IMPORT_PREFIX = "node-serverless-kit/runtime/";
+
+export function runtimeSpecifier(module: string): string {
+  return RUNTIME_IMPORT_PREFIX + module;
+}
+
 /** POSIX relative import specifier from `fromDir` to `target` (always starts with `./` or `../`). */
 export function importSpecifier(fromDir: string, target: string): string {
   const relative = path.relative(fromDir, target);

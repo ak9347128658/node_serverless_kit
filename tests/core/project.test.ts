@@ -1,6 +1,6 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { importSpecifier, packageRoot, publicApiSource, runtimeSource } from "../../src/core/paths.js";
+import { importSpecifier, packageRoot, publicApiSource, runtimeSpecifier, runtimeSource } from "../../src/core/paths.js";
 import { expand, locateHandler, orchestratorName, parseHandlerRef, resolveHandlerFile, WORK_DIR } from "../../src/core/project.js";
 import { getProvider } from "../../src/providers/registry.js";
 import { ORCHESTRATOR_HANDLER } from "../../src/runtime/workflow.js";
@@ -202,5 +202,10 @@ describe("paths", () => {
     expect(importSpecifier(base, path.resolve("/project/src/a.ts"))).toBe("../../src/a.ts");
     expect(importSpecifier(base, path.join(base, "x.ts"))).toBe("./x.ts");
     expect(importSpecifier(base, path.join(base, "sub", "y.ts"))).toBe("./sub/y.ts");
+  });
+
+  it("runtimeSpecifier is a stable kit import, not a relative path", () => {
+    expect(runtimeSpecifier("manifest")).toBe("node-serverless-kit/runtime/manifest");
+    expect(runtimeSpecifier("adapters/cloudflare")).toBe("node-serverless-kit/runtime/adapters/cloudflare");
   });
 });
