@@ -1,0 +1,13 @@
+{
+  "name": "nskit-example-javascript-commonjs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nskit dev",
+    "deploy": "nskit deploy"
+  },
+  "dependencies": {
+    "node-serverless-kit": "^0.1.0"
+  }
+}

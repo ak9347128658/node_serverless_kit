@@ -1,0 +1,58 @@
+service: shop-config
+
+custom:
+  # Reusable values. Read anywhere with ${self:custom.<key>}.
+  table: "${self:service}-${opt:stage}-orders"
+  limits: "${file(config/limits.json)}"          # JSON / YAML / text files are supported
+
+provider:
+  name: aws
+  region: "${env:AWS_REGION, eu-west-1}"          # env var with a default
+  stage: dev                                      # default stage; override with --stage
+  memory: "${self:custom.limits.dev.memory}"      # a whole-value reference keeps the number type
+  environment:
+    TABLE_NAME: "${self:custom.table}"            # shop-config-dev-orders, shop-config-prod-orders, ...
+    LOG_LEVEL: debug
+    FEATURE_NEW_CHECKOUT: "true"
+    API_BASE_URL: "https://api-${opt:stage}.example.com"
+    # Secrets: never commit them. Inject from CI / a secret manager at deploy time:
+    PAYMENT_API_KEY: "${env:PAYMENT_API_KEY, }"
+
+functions:
+  config:
+    handler: src/handlers.config
+    events:
+      - http: GET /config
+
+# Per-stage overrides: deep-merged over everything above when --stage matches.
+stages:
+  staging:
+    provider:
+      memory: "${self:custom.limits.staging.memory}"
+      environment:
+        LOG_LEVEL: info
+  prod:
+    provider:
+      region: eu-central-1
+      memory: "${self:custom.limits.prod.memory}"
+      environment:
+        LOG_LEVEL: warn
+        FEATURE_NEW_CHECKOUT: "false"
+        API_BASE_URL: https://api.example.com
+      state:                                      # teams: keep prod state remotely (see example 11)
+        backend: s3
+        config:
+          bucket: "${env:TF_STATE_BUCKET, acme-terraform-state}"
+          key: shop-config/prod.tfstate
+          region: eu-central-1
+    functions:
+      config:
+        concurrency: "${self:custom.limits.prod.concurrency}"
+
+providers:
+  gcp:
+    region: europe-west1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: westeurope
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

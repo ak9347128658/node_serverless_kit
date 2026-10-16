@@ -1,0 +1,55 @@
+# AFTER: replaces before/template.yaml AND before/state_machine.asl.json.
+service: orders
+
+provider:
+  name: aws              # step 1 of the migration: redeploy to AWS unchanged
+  region: us-east-1
+  runtime: nodejs20      # same runtime as the SAM template; bump when you are ready
+
+functions:
+  create-order:
+    handler: src/orders.createOrder
+    events:
+      - http: POST /orders
+  get-order:
+    handler: src/orders.getOrder
+    events:
+      - http: GET /orders/{id}
+  email-worker:
+    handler: src/orders.emailWorker
+    events:
+      - queue: {name: orders-email, batchSize: 10}
+  validate:
+    handler: src/orders.validate
+  charge:
+    handler: src/orders.charge
+
+workflows:
+  order-processing:            # was state_machine.asl.json
+    startAt: Validate
+    states:
+      Validate:
+        type: task
+        function: validate     # logical name, not an ARN
+        catch: [{errors: [ValidationError], next: Rejected, resultPath: $.error}]
+        next: IsLarge
+      IsLarge:
+        type: choice
+        choices: [{variable: $.total, gt: 500, next: Review}]
+        default: Charge
+      Review: {type: wait, seconds: 60, next: Charge}
+      Charge:
+        type: task
+        function: charge
+        retry: [{errors: ["*"], intervalSeconds: 2, maxAttempts: 3, backoffRate: 2}]
+        end: true
+      Rejected: {type: fail, error: OrderRejected}
+
+# step 2: switch clouds by adding a block and running `nskit deploy --provider gcp`
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

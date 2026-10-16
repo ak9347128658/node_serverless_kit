@@ -1,0 +1,25 @@
+# The smallest deployable service: one handler, two HTTP routes.
+service: hello-http
+
+provider:
+  name: aws            # change to gcp, azure, cloudflare, ... (or pass --provider) and redeploy
+  region: us-east-1
+
+functions:
+  hello:
+    handler: src/handlers.hello      # <module path relative to package.source>.<export>
+    description: Say hello
+    events:
+      - http: GET /hello             # shorthand for {method: GET, path: /hello}
+      - http: GET /hello/{name}      # path parameter -> event.http.pathParams.name
+
+# Per-cloud overrides. They only apply when that cloud is selected, so one file serves every target.
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+  cloudflare:
+    options: {account_id: "${env:CLOUDFLARE_ACCOUNT_ID, 0123456789abcdef0123456789abcdef}"}

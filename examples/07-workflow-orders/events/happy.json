@@ -1,0 +1,9 @@
+{
+  "orderId": "o-1001",
+  "customer": {"email": "ada@example.com"},
+  "card": "tok_flaky",
+  "items": [
+    {"sku": "sku-book", "qty": 2, "price": 12.5},
+    {"sku": "sku-mug", "qty": 1, "price": 9.0}
+  ]
+}

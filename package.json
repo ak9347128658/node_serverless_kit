@@ -1,0 +1,113 @@
+{
+  "name": "node-serverless-kit",
+  "version": "0.1.0",
+  "description": "Write a Node.js (TypeScript or JavaScript) serverless function once and deploy it to AWS, Azure, GCP and 7 more clouds with one YAML file, powered by Terraform.",
+  "keywords": [
+    "serverless",
+    "lambda",
+    "terraform",
+    "multi-cloud",
+    "faas",
+    "aws",
+    "azure",
+    "gcp",
+    "cloudflare-workers",
+    "step-functions",
+    "typescript"
+  ],
+  "author": "Asif Khan @ Kavion.ai",
+  "license": "MIT",
+  "homepage": "https://github.com/ak9347128658/node_serverless_kit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ak9347128658/node_serverless_kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ak9347128658/node_serverless_kit/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19"
+  },
+  "bin": {
+    "nskit": "bin/nskit.js",
+    "node-serverless-kit": "bin/nskit.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./testing": {
+      "import": {
+        "types": "./dist/testing.d.ts",
+        "default": "./dist/testing.js"
+      },
+      "require": {
+        "types": "./dist/testing.d.cts",
+        "default": "./dist/testing.cjs"
+      }
+    },
+    "./api": {
+      "import": {
+        "types": "./dist/api.d.ts",
+        "default": "./dist/api.js"
+      },
+      "require": {
+        "types": "./dist/api.d.cts",
+        "default": "./dist/api.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "validate:terraform": "node scripts/validate-all-providers.mjs",
+    "check": "npm run typecheck && npm run lint && npm test && npm run build",
+    "prepublishOnly": "npm run check"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "esbuild": "^0.28.2",
+    "picocolors": "^1.1.1",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^4.1.12",
+    "eslint": "^10.12.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^4.1.12"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

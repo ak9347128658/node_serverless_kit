@@ -1,0 +1,53 @@
+service: storage-events
+
+custom:
+  # Bucket names are global on AWS/GCP: make them unique per account and stage.
+  bucket: "${env:DATA_BUCKET, storage-events-data-demo-1234}-${opt:stage}"
+
+provider:
+  name: aws
+  region: us-east-1
+
+functions:
+  import-csv:
+    handler: src/files.importCsv
+    timeout: 120
+    events:
+      - storage:
+          bucket: "${self:custom.bucket}"   # created by nskit (existing: false is the default)
+          events: [created]
+          prefix: incoming/
+          suffix: .csv
+
+  purge-index:
+    handler: src/files.purgeIndex
+    events:
+      - storage:
+          bucket: "${self:custom.bucket}"
+          events: [deleted]
+
+  audit-existing:
+    handler: src/files.auditExistingBucket
+    events:
+      - storage:
+          bucket: "${env:AUDIT_BUCKET, company-shared-uploads-1234}"
+          existing: true                    # look it up, never create or delete it
+          events: [created, deleted]
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+    functions:
+      # Azure blob triggers fire on created/updated blobs only. Deletions need an Event Grid
+      # subscription, so on Azure the function is deployed without a trigger (invoke-only).
+      purge-index:
+        events: []
+      # A blob trigger on a container outside the Function App's storage account needs a
+      # connection string - here we listen to an app-owned container instead.
+      audit-existing:
+        events:
+          - storage: {bucket: audit-uploads, events: [created]}

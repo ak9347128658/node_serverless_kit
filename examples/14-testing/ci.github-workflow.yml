@@ -1,0 +1,45 @@
+# Copy to .github/workflows/ci.yml in your service repository.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+
+  validate:
+    # Catch config the target clouds can't run before anyone deploys.
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        provider: [aws, gcp, azure]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx nskit validate --provider ${{ matrix.provider }}
+      - run: npx nskit validate --provider ${{ matrix.provider }} --stage prod
+      # Bundles the code and generates main.tf.json without touching the cloud; upload it for reviewers.
+      - run: npx nskit package --provider ${{ matrix.provider }} --skip-install
+      - uses: actions/upload-artifact@v4
+        with:
+          name: terraform-${{ matrix.provider }}
+          path: .nskit/${{ matrix.provider }}-dev/main.tf.json

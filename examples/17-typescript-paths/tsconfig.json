@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": [],
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    // Path aliases: TypeScript uses them for type checking, nskit passes this tsconfig to
+    // esbuild (package.tsconfig), which resolves them while bundling.
+    "paths": {
+      "@lib/*": ["./src/lib/*"],
+      "@templates/*": ["./templates/*"],
+      // Only used inside the node-serverless-kit repository (type-check against the sources).
+      "node-serverless-kit": ["../../src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

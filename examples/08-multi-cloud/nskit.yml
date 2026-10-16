@@ -1,0 +1,86 @@
+# One file for all ten clouds. Pick the target with:
+#   nskit deploy                     -> provider.name below (aws)
+#   nskit deploy --provider gcp      -> applies providers.gcp on top
+#
+# Everything under `providers.<cloud>` is merged over the base config only when that
+# cloud is selected. ProviderConfig keys (region, runtime, timeout, options, ...) may be
+# written directly under the cloud name.
+
+service: multi-cloud
+
+provider:
+  name: aws
+  region: us-east-1
+  # runtime is not pinned: nskit picks the newest Node.js (<= 22) each cloud supports.
+  memory: 256
+  timeout: 30
+  environment:
+    APP_NAME: multi-cloud-demo
+
+functions:
+  whoami:
+    handler: src/handlers.whoami
+    events:
+      - http: GET /whoami
+  echo:
+    handler: src/handlers.echo
+    events:
+      - http: {method: POST, path: /echo, cors: true}
+  ticker:
+    handler: src/handlers.ticker
+    events:
+      - schedule: {rate: 1 hour, input: {source: multi-cloud}}
+
+providers:
+  aws:
+    region: "${env:AWS_REGION, us-east-1}"
+
+  gcp:
+    region: us-central1
+    options:
+      project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"
+
+  azure:
+    region: westeurope
+    options:
+      subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"
+
+  alibaba:
+    region: cn-hangzhou           # credentials: ALICLOUD_ACCESS_KEY / ALICLOUD_SECRET_KEY
+    options:
+      profile: "${env:ALICLOUD_PROFILE, default}"
+
+  tencent:
+    region: ap-guangzhou          # credentials: TENCENTCLOUD_SECRET_ID / TENCENTCLOUD_SECRET_KEY
+
+  huawei:
+    region: cn-north-4            # credentials: HW_ACCESS_KEY / HW_SECRET_KEY
+    options:
+      apig_instance_id: "${env:HUAWEI_APIG_INSTANCE_ID, 00000000000000000000000000000000}"   # HTTP needs a dedicated APIG
+
+  oracle:
+    region: us-ashburn-1          # OCI Functions run container images
+    options:
+      compartment_id: "${env:OCI_COMPARTMENT_ID, ocid1.compartment.oc1..example}"
+      subnet_ids: ["${env:OCI_SUBNET_ID, ocid1.subnet.oc1.iad.example}"]
+      image_repository: "${env:OCI_IMAGE_REPOSITORY, iad.ocir.io/mytenancy/multi-cloud}"   # nskit builds + pushes with docker
+    functions:
+      ticker:
+        events: []                # no schedule trigger on OCI in nskit -> invoke-only
+
+  ibm:
+    region: us-south              # credentials: IC_API_KEY
+    options:
+      resource_group: "${env:IBM_RESOURCE_GROUP, Default}"
+    functions:
+      ticker:
+        events: []                # Code Engine functions have no triggers in Terraform -> HTTP endpoint only
+
+  digitalocean:
+    options:                      # deploys with `doctl serverless` (doctl must be on PATH)
+      namespace: "${env:DO_FUNCTIONS_NAMESPACE, fn-00000000-0000-0000-0000-000000000000}"
+
+  cloudflare:
+    options:                      # credentials: CLOUDFLARE_API_TOKEN
+      account_id: "${env:CLOUDFLARE_ACCOUNT_ID, 0123456789abcdef0123456789abcdef}"
+      workers_subdomain: "${env:CLOUDFLARE_WORKERS_SUBDOMAIN, my-team}"   # <name>.<subdomain>.workers.dev

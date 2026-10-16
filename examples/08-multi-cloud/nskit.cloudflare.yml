@@ -1,0 +1,12 @@
+#   nskit deploy -c nskit.cloudflare.yml
+# The same TypeScript runs in a V8 isolate: the handlers only use web APIs.
+extends: nskit.yml
+
+provider:
+  name: cloudflare
+
+providers:
+  cloudflare:
+    options:
+      account_id: "${env:CLOUDFLARE_ACCOUNT_ID, 0123456789abcdef0123456789abcdef}"
+      workers_subdomain: "${env:CLOUDFLARE_WORKERS_SUBDOMAIN, my-team}"

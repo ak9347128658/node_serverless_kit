@@ -1,0 +1,17 @@
+{
+  "name": "nskit-example-migrate-from-aws-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nskit dev",
+    "typecheck": "tsc --noEmit",
+    "deploy": "nskit deploy"
+  },
+  "dependencies": {
+    "node-serverless-kit": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

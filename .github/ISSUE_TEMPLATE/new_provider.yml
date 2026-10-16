@@ -1,0 +1,59 @@
+name: New provider
+description: Propose support for another cloud or FaaS platform
+labels: [provider, enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read "Add a new cloud provider" in deploy_docs/CONTRIBUTING.md first. A provider can also ship as
+        a separate npm package (third-party plug-in) without changes to this repository.
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: "Vercel Functions"
+    validations:
+      required: true
+  - type: input
+    id: terraform
+    attributes:
+      label: Terraform provider
+      description: Registry source and version, e.g. `vercel/vercel >= 2.0`
+    validations:
+      required: true
+  - type: textarea
+    id: resources
+    attributes:
+      label: Resources
+      description: Exact Terraform resource types for the function (zip or image), HTTP endpoint and each trigger
+    validations:
+      required: true
+  - type: checkboxes
+    id: capabilities
+    attributes:
+      label: Triggers the platform can support
+      options:
+        - label: http
+        - label: schedule
+        - label: queue
+        - label: storage
+        - label: topic
+        - label: native workflow engine
+  - type: textarea
+    id: runtime
+    attributes:
+      label: Runtime details
+      description: |
+        Node.js versions, module format (CJS / ESM), entrypoint signature, Node.js or V8 isolate,
+        max timeout, how dependencies are installed (in the zip, remote build, container image).
+  - type: textarea
+    id: payloads
+    attributes:
+      label: Native event payloads
+      description: Links to docs or recorded samples for HTTP and each trigger
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I can implement this and test a real deployment

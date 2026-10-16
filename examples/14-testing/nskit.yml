@@ -1,0 +1,39 @@
+service: testing-demo
+
+provider:
+  name: aws
+  region: us-east-1
+
+functions:
+  price:
+    handler: src/handlers.price
+    events: [{http: POST /price}]
+  ingest:
+    handler: src/handlers.ingest
+    events: [{queue: ingest}]
+  shipped-only:
+    handler: src/handlers.shippedOnly
+    events: [{topic: orders}]
+  enrich: {handler: src/handlers.enrich}
+  score: {handler: src/handlers.score}
+
+workflows:
+  scoring:
+    startAt: Enrich
+    states:
+      Enrich: {type: task, function: enrich, next: Score}
+      Score: {type: task, function: score, next: Route}
+      Route:
+        type: choice
+        choices: [{variable: $.score, gte: 80, next: Approve}]
+        default: Decline
+      Approve: {type: succeed}
+      Decline: {type: fail, error: LowScore}
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

@@ -1,0 +1,15 @@
+# Alternative layout: one small file per cloud that extends the shared config.
+#   nskit deploy -c nskit.aws.yml
+extends: nskit.yml
+
+provider:
+  name: aws
+
+# Cloud-specific values go under providers.<cloud>, so they win over the parent's
+# block for the same cloud.
+providers:
+  aws:
+    region: eu-west-1
+    architecture: arm64        # Graviton: cheaper per GB-second
+    tags:
+      cost-center: platform

@@ -1,0 +1,68 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please remove secrets (keys, account ids, tokens) from everything you paste.
+        Security problems: do not open an issue, see SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: nskit version
+      description: Output of `nskit --version`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options: [aws, azure, gcp, alibaba, tencent, huawei, oracle, ibm, digitalocean, cloudflare, local only, third-party plug-in]
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where does it fail?
+      options:
+        - nskit validate / package (config, bundling)
+        - terraform plan / apply
+        - deployed function at runtime
+        - nskit dev / invoke / LocalRunner
+        - workflows
+        - dashboard / info
+        - other
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Node.js version (`node --version`), Terraform/OpenTofu version
+      placeholder: "Windows 11, Node 22.14.0, Terraform 1.9.8"
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant nskit.yml
+      render: yaml
+  - type: textarea
+    id: handler
+    attributes:
+      label: Handler code (minimal)
+      render: ts
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened and what you expected
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Full error output
+      description: Run the command with `-v` for the stack trace
+      render: text

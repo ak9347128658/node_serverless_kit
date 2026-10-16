@@ -1,0 +1,40 @@
+service: quotes
+
+provider:
+  name: aws
+  region: us-east-1
+  # On AWS invoke() calls lambda:InvokeFunction on the sibling functions.
+  # Their names are <service>-<stage>-<function>.
+  iam:
+    statements:
+      - actions: ["lambda:InvokeFunction"]
+        resources: ["arn:aws:lambda:*:*:function:${self:service}-${opt:stage}-*"]
+
+functions:
+  quote:
+    handler: src/quotes.quote
+    events:
+      - http: POST /quote
+
+  price-calculator:
+    handler: src/quotes.priceCalculator      # no events: invoke-only
+
+  audit-log:
+    handler: src/quotes.auditLog
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+    # invoke() calls https://<region>-<project>.cloudfunctions.net/<name> with an ID token.
+
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+    # Azure has no SDK-level "invoke function" API, so give the caller the URLs.
+    # Fill them in from `nskit info` after the first deploy (or in CI).
+    functions:
+      quote:
+        environment:
+          NSKIT_ENDPOINT_PRICE_CALCULATOR: "${env:PRICE_CALCULATOR_URL, }"
+          NSKIT_ENDPOINT_AUDIT_LOG: "${env:AUDIT_LOG_URL, }"

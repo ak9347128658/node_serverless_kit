@@ -1,0 +1,49 @@
+service: scheduled-jobs
+
+provider:
+  name: aws
+  region: eu-central-1
+  timeout: 120
+
+functions:
+  heartbeat:
+    handler: src/jobs.heartbeat
+    events:
+      - schedule: 5 minutes              # shorthand for {rate: "5 minutes"}
+
+  daily-report:
+    handler: src/jobs.dailyReport
+    timeout: 300
+    events:
+      - schedule:
+          cron: "0 9 * * 1-5"            # standard 5-field cron: 09:00 Mon-Fri
+          timezone: Europe/Berlin        # honoured by AWS EventBridge Scheduler and GCP Cloud Scheduler
+          input:                         # becomes event.data
+            report: sales
+            days: 1
+            recipients: [finance@example.com]
+      - schedule:
+          name: weekly                   # several schedules per function: give them names
+          cron: "0 7 * * 1"
+          input: {report: sales-weekly, days: 7}
+
+  cleanup:
+    handler: src/jobs.cleanup
+    timeout: 900
+    events:
+      - schedule:
+          rate: 1 day
+          enabled: true                  # set to false to pause a schedule without deleting it
+          input: {retentionDays: 90}
+
+providers:
+  gcp:
+    region: europe-west3
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+    functions:
+      cleanup: {timeout: 540}            # Cloud Functions event-driven maximum
+  azure:
+    region: germanywestcentral
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+    functions:
+      cleanup: {timeout: 600}            # Azure consumption plan maximum

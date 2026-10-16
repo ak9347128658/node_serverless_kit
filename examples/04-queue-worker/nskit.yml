@@ -1,0 +1,39 @@
+service: queue-worker
+
+provider:
+  name: aws
+  region: us-east-1
+  timeout: 60
+  environment:
+    JOBS_QUEUE: jobs
+
+functions:
+  process-jobs:
+    handler: src/worker.processJobs
+    timeout: 60
+    events:
+      - queue:
+          name: jobs
+          batchSize: 10             # up to 10 messages per invocation
+          batchWindow: 5            # wait up to 5 s to fill a batch (AWS)
+          deadLetter: jobs-dlq      # after maxReceive failed deliveries
+          maxReceive: 5
+          # fifo: true              # ordered, exactly-once processing (AWS SQS FIFO only)
+
+  audit-dead-letters:
+    handler: src/worker.auditDeadLetters
+    events:
+      - queue: {name: jobs-dlq, batchSize: 10}
+
+  enqueue:
+    handler: src/worker.enqueue
+    events:
+      - http: POST /jobs
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

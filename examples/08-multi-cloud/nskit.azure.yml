@@ -1,0 +1,12 @@
+#   nskit deploy -c nskit.azure.yml
+extends: nskit.yml
+
+provider:
+  name: azure
+
+providers:
+  azure:
+    region: northeurope
+    options:
+      subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"
+      app_insights: true

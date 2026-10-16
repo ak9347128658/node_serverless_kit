@@ -1,0 +1,65 @@
+service: orders-ddb
+
+provider:
+  name: aws
+  region: us-east-1
+
+  environment:
+    # ${tf:...} is passed to Terraform untouched -> the real table name after apply.
+    ORDERS_TABLE: "${tf:aws_dynamodb_table.orders.name}"
+
+  iam:
+    statements:
+      - actions: ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:Query"]
+        resources:
+          - "${tf:aws_dynamodb_table.orders.arn}"
+          - "${tf:aws_dynamodb_table.orders.arn}/index/*"
+
+  # Remote state: required for teams and CI so everyone shares one state file.
+  # Create the bucket (versioning on) and the lock table once, outside this service,
+  # then uncomment:
+  # state:
+  #   backend: s3
+  #   config:
+  #     bucket: "${env:TF_STATE_BUCKET, acme-terraform-state}"
+  #     key: "${self:service}/${opt:stage}/terraform.tfstate"
+  #     region: us-east-1
+  #     dynamodb_table: "${env:TF_LOCK_TABLE, terraform-locks}"
+  #     encrypt: true
+
+  terraform:
+    requiredVersion: ">= 1.5.0"
+    providerVersion: "~> 5.60"           # pin the AWS provider for reproducible plans
+    # Raw Terraform JSON, deep-merged into the generated main.tf.json.
+    extra:
+      resource:
+        aws_dynamodb_table:
+          orders:
+            name: "${self:service}-${opt:stage}-orders"
+            billing_mode: PAY_PER_REQUEST
+            hash_key: id
+            attribute:
+              - {name: id, type: S}
+            point_in_time_recovery: {enabled: true}
+            server_side_encryption: {enabled: true}
+      output:
+        orders_table_arn:
+          value: "${aws_dynamodb_table.orders.arn}"   # raw Terraform: no tf: prefix needed here
+
+functions:
+  create-order:
+    handler: src/handlers.createOrder
+    events:
+      - http: POST /orders
+  get-order:
+    handler: src/handlers.getOrder
+    events:
+      - http: GET /orders/{id}
+
+# Shell commands run from the project root. NSKIT_SERVICE, NSKIT_STAGE, NSKIT_PROVIDER
+# and NSKIT_WORK_DIR are set for them. A failing command stops the deployment.
+hooks:
+  beforeDeploy:
+    - npm run typecheck                     # don't ship broken builds
+  afterDeploy:
+    - node scripts/smoke-test.mjs

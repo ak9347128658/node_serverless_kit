@@ -1,0 +1,47 @@
+/** Locate files that ship inside the node-serverless-kit package itself. */
+
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+let cached: string | undefined;
+
+/** Root directory of the installed node-serverless-kit package (contains package.json and src/). */
+export function packageRoot(): string {
+  if (cached) return cached;
+  const here = typeof __dirname === "string" ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+  let dir = here;
+  for (;;) {
+    const pkg = path.join(dir, "package.json");
+    if (existsSync(pkg)) {
+      try {
+        if (JSON.parse(readFileSync(pkg, "utf-8")).name === "node-serverless-kit") return (cached = dir);
+      } catch {
+        /* keep walking */
+      }
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) throw new Error(`cannot locate the node-serverless-kit package root from ${here}`);
+    dir = parent;
+  }
+}
+
+/** Absolute path of a runtime module source, e.g. `runtimeSource("adapters/aws")`. */
+export function runtimeSource(module: string): string {
+  return path.join(packageRoot(), "src", "runtime", `${module}.ts`);
+}
+
+/** Absolute path of the runtime public API source (aliased as `node-serverless-kit` in bundles). */
+export function publicApiSource(): string {
+  return path.join(packageRoot(), "src", "index.ts");
+}
+
+/** POSIX relative import specifier from `fromDir` to `target` (always starts with `./` or `../`). */
+export function importSpecifier(fromDir: string, target: string): string {
+  const relative = path.relative(fromDir, target);
+  // Different drive on Windows: fall back to an absolute path.
+  if (path.isAbsolute(relative)) return relative.split(path.sep).join("/");
+  let rel = relative.split(path.sep).join("/");
+  if (!rel.startsWith(".")) rel = "./" + rel;
+  return rel;
+}

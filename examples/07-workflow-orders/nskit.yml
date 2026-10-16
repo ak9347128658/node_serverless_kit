@@ -1,0 +1,99 @@
+service: order-workflow
+
+provider:
+  name: aws
+  region: us-east-1
+  timeout: 30
+
+functions:
+  validate-order: {handler: src/orders.validateOrder}
+  reserve-item: {handler: src/orders.reserveItem}
+  charge-payment: {handler: src/orders.chargePayment}
+  send-confirmation: {handler: src/orders.sendConfirmation}
+  create-shipment: {handler: src/orders.createShipment}
+
+workflows:
+  order-pipeline:
+    description: Validate, route, reserve stock, charge and fulfil an order
+    engine: auto            # native where available (AWS Step Functions, GCP Workflows), else embedded
+    timeout: 3600
+    startAt: Validate
+    states:
+
+      Validate:                                   # task + catch
+        type: task
+        function: validate-order
+        catch:
+          - {errors: [ValidationError], next: Rejected, resultPath: $.error}
+        next: Route
+
+      Route:                                      # choice with and / or / not, numeric + string
+        type: choice
+        choices:
+          - and:
+              - {variable: $.total, gt: 1000}
+              - {not: {variable: $.customer.vip, equals: true}}
+            next: ManualReview
+          - or:
+              - {variable: $.channel, equals: b2b}
+              - {variable: $.currency, equals: CHF}
+            next: Invoice
+        default: Reserve
+
+      ManualReview:                               # wait (a real system would wait for a callback)
+        type: wait
+        seconds: 30
+        next: Reserve
+
+      Invoice:                                    # pass: inject a constant result
+        type: pass
+        result: {status: invoiced}
+        resultPath: $.payment
+        next: Fulfil
+
+      Reserve:                                    # map: one task per item, 5 at a time
+        type: map
+        itemsPath: $.items
+        maxConcurrency: 5
+        iterator:
+          startAt: ReserveItem
+          states:
+            ReserveItem: {type: task, function: reserve-item, end: true}
+        resultPath: $.reservations
+        catch:
+          - {errors: [OutOfStock], next: Rejected, resultPath: $.error}
+        next: Charge
+
+      Charge:                                     # task + retry + catch
+        type: task
+        function: charge-payment
+        resultPath: $.payment
+        retry:
+          - {errors: [PaymentGatewayTimeout], maxAttempts: 3, intervalSeconds: 2, backoffRate: 2}
+        catch:
+          - {errors: [PaymentDeclined], next: Declined, resultPath: $.error}
+        next: Fulfil
+
+      Fulfil:                                     # parallel branches
+        type: parallel
+        resultPath: $.fulfilment
+        branches:
+          - startAt: Confirm
+            states:
+              Confirm: {type: task, function: send-confirmation, end: true}
+          - startAt: Ship
+            states:
+              Ship: {type: task, function: create-shipment, end: true}
+        next: Done
+
+      Done: {type: succeed}
+      Declined: {type: fail, error: PaymentDeclined, cause: The card was declined}
+      Rejected: {type: fail, error: OrderRejected, cause: The order failed validation or stock checks}
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

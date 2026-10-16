@@ -1,0 +1,100 @@
+# Copy to .github/workflows/deploy.yml.
+#
+# main      -> deploy to dev automatically
+# tag v*    -> deploy to staging, then prod after a manual approval
+#              (configure "Required reviewers" on the `prod` GitHub environment)
+name: deploy
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Stage to deploy
+        type: choice
+        options: [dev, staging, prod]
+
+permissions:
+  id-token: write      # OIDC: no long-lived cloud keys in GitHub secrets
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false   # never interrupt a terraform apply
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22", cache: npm}
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test --if-present
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        stage: >-
+          ${{ fromJSON(
+                github.event_name == 'workflow_dispatch' && format('["{0}"]', inputs.stage) ||
+                startsWith(github.ref, 'refs/tags/v') && '["staging","prod"]' ||
+                '["dev"]') }}
+    environment: ${{ matrix.stage }}     # per-stage variables, secrets and approvals
+    env:
+      TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      TF_LOCK_TABLE: ${{ vars.TF_LOCK_TABLE }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "22", cache: npm}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+      - run: npm ci
+
+      # --- AWS via OIDC: an IAM role trusting token.actions.githubusercontent.com
+      #     (condition: repo:<owner>/<repo>:environment:<stage>)
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      # --- GCP instead (Workload Identity Federation):
+      # - uses: google-github-actions/auth@v2
+      #   with:
+      #     workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+      #     service_account: ${{ vars.GCP_DEPLOY_SA }}
+      #   ...and use `npx nskit deploy --provider gcp` below.
+
+      # --- Azure instead (federated credential on an app registration):
+      # - uses: azure/login@v2
+      #   with:
+      #     client-id: ${{ vars.AZURE_CLIENT_ID }}
+      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
+      #     subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      #   env for terraform: ARM_USE_OIDC=true ARM_CLIENT_ID ARM_TENANT_ID ARM_SUBSCRIPTION_ID
+
+      - run: npx nskit validate --stage ${{ matrix.stage }}
+      - run: npx nskit deploy --stage ${{ matrix.stage }}
+
+      - name: Smoke test
+        run: |
+          url=$(npx nskit info --stage ${{ matrix.stage }} --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).endpoint))")
+          curl --fail --retry 5 --retry-delay 3 "$url/health"
+
+      - name: Deployment record
+        if: always()
+        run: npx nskit info --stage ${{ matrix.stage }} --json > deployment-${{ matrix.stage }}.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-${{ matrix.stage }}
+          path: deployment-${{ matrix.stage }}.json

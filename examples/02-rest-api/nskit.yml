@@ -1,0 +1,80 @@
+service: books-api
+
+provider:
+  name: aws
+  region: us-east-1
+  memory: 256
+  timeout: 10
+  environment:
+    # HS256 secret used by src/auth.ts. Inject the real one from CI / a secret manager.
+    JWT_SECRET: "${env:JWT_SECRET, dev-secret-change-me}"
+    JWT_ISSUER: "${env:JWT_ISSUER, https://auth.example.com/}"
+    JWT_AUDIENCE: books-api
+
+custom:
+  # Allowed browser origins for CORS - defined once, reused below with ${self:custom.cors}.
+  cors:
+    origins: ["https://books.example.com", "http://localhost:5173"]
+    allowCredentials: true
+    exposeHeaders: [location]
+
+functions:
+  list-books:
+    handler: src/handlers.listBooks
+    events:
+      - http: {method: GET, path: /books, cors: "${self:custom.cors}"}
+
+  get-book:
+    handler: src/handlers.getBook
+    events:
+      - http: {method: GET, path: "/books/{id}", cors: "${self:custom.cors}"}
+
+  create-book:
+    handler: src/handlers.createBook
+    events:
+      - http: {method: POST, path: /books, cors: "${self:custom.cors}"}
+
+  update-book:
+    handler: src/handlers.updateBook
+    events:
+      - http: {method: PUT, path: "/books/{id}", cors: "${self:custom.cors}"}
+
+  delete-book:
+    handler: src/handlers.deleteBook
+    events:
+      - http: {method: DELETE, path: "/books/{id}", cors: "${self:custom.cors}"}
+
+  cover:
+    handler: src/handlers.cover
+    events:
+      - http: GET /books/{id}/cover
+
+  docs:
+    handler: src/handlers.docs
+    events:
+      - http: GET /docs
+
+  session:
+    handler: src/handlers.createSession
+    events:
+      - http: POST /session
+
+  admin-stats:
+    handler: src/handlers.adminStats
+    events:
+      # The handler verifies the bearer token itself (HS256 via WebCrypto), which works
+      # on every cloud including Cloudflare Workers. On AWS you can instead let API Gateway
+      # validate tokens from your identity provider:
+      #   - http: {method: GET, path: /stats/admin, auth: jwt,
+      #            authorizer: {issuer: "https://example.auth0.com/", audience: [books-api]}}
+      - http: GET /stats/admin
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+  cloudflare:
+    options: {account_id: "${env:CLOUDFLARE_ACCOUNT_ID, 0123456789abcdef0123456789abcdef}"}

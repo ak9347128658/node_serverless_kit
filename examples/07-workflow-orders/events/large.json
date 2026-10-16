@@ -1,0 +1,5 @@
+{
+  "orderId": "o-1004",
+  "customer": {"email": "grace@example.com"},
+  "items": [{"sku": "sku-book", "qty": 50, "price": 25}]
+}

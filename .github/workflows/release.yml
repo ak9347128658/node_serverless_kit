@@ -1,0 +1,101 @@
+name: Release
+
+# Push a tag like v0.2.0 to publish to npm. See deploy_docs/PUBLISHING_TO_NPM.md.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Optional: add required reviewers to this environment for a manual gate.
+    # If you use it, enter the same environment name in the npm trusted publisher settings.
+    environment: npm
+    permissions:
+      contents: write   # create the GitHub release
+      id-token: write   # npm trusted publishing (OIDC) and provenance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm >= 11.5.1.
+      - name: Update npm
+        run: npm install -g npm@latest && npm --version
+
+      - name: Check tag == package.json == src/version.ts
+        run: node scripts/check-version.mjs --tag "$GITHUB_REF_NAME"
+
+      - name: Release metadata
+        id: meta
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" == *-* ]]; then
+            echo "dist_tag=next" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dist_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: npm ci
+      - run: npm run check
+      - name: Review package contents
+        run: npm pack --dry-run
+
+      - name: Check whether this version is already on npm
+        id: published
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          if npm view "node-serverless-kit@$VERSION" version >/dev/null 2>&1; then
+            echo "node-serverless-kit@$VERSION is already published (e.g. the manual first release); skipping npm publish"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to npm
+        if: steps.published.outputs.exists != 'true'
+        # With a trusted publisher configured on npmjs.com, npm authenticates via OIDC
+        # and NPM_TOKEN is not used (an empty or missing secret is fine).
+        # Without one, NPM_TOKEN must be a granular access token with publish rights.
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public --tag "${{ steps.meta.outputs.dist_tag }}"
+
+      - name: Extract CHANGELOG section
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const v = process.env.VERSION;
+            const NL = String.fromCharCode(10);
+            const lines = fs.readFileSync("CHANGELOG.md", "utf8").replaceAll(String.fromCharCode(13), "").split(NL);
+            const start = lines.findIndex((l) => l.startsWith("## [" + v + "]"));
+            let body = "See CHANGELOG.md for details.";
+            if (start >= 0) {
+              let end = lines.findIndex((l, i) => i > start && l.startsWith("## "));
+              if (end < 0) end = lines.length;
+              // Drop Keep-a-Changelog link references such as "[0.1.0]: https://...".
+              body = lines.slice(start + 1, end).filter((l) => !/^\[[^\]]+\]:\s/.test(l)).join(NL).trim() || body;
+            }
+            const link = "npm: https://www.npmjs.com/package/node-serverless-kit/v/" + v;
+            fs.writeFileSync("RELEASE_NOTES.md", body + NL + NL + link + NL);
+          '
+          cat RELEASE_NOTES.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ steps.meta.outputs.prerelease }}

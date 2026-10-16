@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a new option, trigger, command or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what gets in the way today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: The YAML, API or CLI you would like to write
+    validations:
+      required: true
+  - type: textarea
+    id: portability
+    attributes:
+      label: Portability
+      description: |
+        Handler code must not change between clouds. Which providers can support this, and what
+        should happen on the ones that cannot (validation error, warning, provider-specific `options:`)?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: e.g. `functions.<fn>.options`, `provider.terraform.extra`, `${tf:...}`
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to implement this myself

@@ -1,0 +1,34 @@
+service: async-context
+
+provider:
+  name: aws
+  region: us-east-1
+  environment:
+    LOG_LEVEL: debug          # nskit honours NSKIT_LOG_LEVEL / LOG_LEVEL
+
+functions:
+  aggregate:
+    handler: src/handlers.aggregate
+    events:
+      - http: GET /aggregate
+  inspect:
+    handler: src/handlers.inspect
+    events:
+      - http: POST /inspect
+  metrics:
+    handler: src/handlers.metrics      # invoke-only: what the background tasks recorded
+  batch-job:
+    handler: src/handlers.batchJob
+    timeout: 60
+    events:
+      - schedule: 15 minutes
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+  cloudflare:
+    options: {account_id: "${env:CLOUDFLARE_ACCOUNT_ID, 0123456789abcdef0123456789abcdef}"}

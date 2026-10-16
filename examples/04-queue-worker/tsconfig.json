@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": [],
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    // Only used inside the node-serverless-kit repository (type-check against the sources).
+    // In your own project the installed package is found in node_modules instead.
+    "paths": {
+      "node-serverless-kit": ["../../src/index.ts"],
+      "node-serverless-kit/testing": ["../../src/testing.ts"]
+    }
+  },
+  "include": ["src"]
+}

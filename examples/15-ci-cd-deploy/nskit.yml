@@ -1,0 +1,50 @@
+service: cicd-demo
+
+provider:
+  name: aws
+  region: us-east-1
+  environment:
+    APP_VERSION: "${env:GITHUB_SHA, local}"          # git SHA injected by CI
+  tags:
+    repository: "${env:GITHUB_REPOSITORY, local}"
+  # One state file per stage, shared by CI and humans.
+  state:
+    backend: s3
+    config:
+      bucket: "${env:TF_STATE_BUCKET, acme-terraform-state}"
+      key: "${self:service}/${opt:stage}/terraform.tfstate"
+      region: us-east-1
+      dynamodb_table: "${env:TF_LOCK_TABLE, terraform-locks}"
+      encrypt: true
+
+functions:
+  health:
+    handler: src/handlers.health
+    events:
+      - http: GET /health
+
+stages:
+  prod:
+    provider:
+      memory: 512
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+    state:
+      backend: gcs
+      config:
+        bucket: "${env:TF_STATE_BUCKET, acme-terraform-state}"
+        prefix: "${self:service}/${opt:stage}"
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+    state:
+      backend: azurerm
+      config:
+        resource_group_name: "${env:TF_STATE_RG, tfstate}"
+        storage_account_name: "${env:TF_STATE_ACCOUNT, acmetfstate}"
+        container_name: tfstate
+        key: "${self:service}-${opt:stage}.tfstate"
+        use_oidc: true

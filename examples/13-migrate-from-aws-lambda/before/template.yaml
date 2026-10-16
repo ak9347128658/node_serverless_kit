@@ -1,0 +1,50 @@
+# BEFORE: AWS SAM template (AWS-only). Shown for comparison with after/nskit.yml.
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    CodeUri: .
+Resources:
+  CreateOrder:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.createOrderHandler
+      Environment:
+        Variables:
+          ORDER_STATE_MACHINE_ARN: !Ref OrderStateMachine
+      Policies:
+        - StepFunctionsExecutionPolicy: {StateMachineName: !GetAtt OrderStateMachine.Name}
+      Events:
+        Api: {Type: Api, Properties: {Path: /orders, Method: post}}
+  GetOrder:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.getOrderHandler
+      Events:
+        Api: {Type: Api, Properties: {Path: "/orders/{id}", Method: get}}
+  EmailWorker:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.emailWorkerHandler
+      Events:
+        Queue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt EmailQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes: [ReportBatchItemFailures]
+  ValidateTask:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.validateTask
+  ChargeTask:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.chargeTask
+  EmailQueue:
+    Type: AWS::SQS::Queue
+  OrderStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: state_machine.asl.json

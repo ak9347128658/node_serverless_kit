@@ -1,0 +1,37 @@
+# Plain CommonJS JavaScript: require() + module.exports, no TypeScript, no build step of your own.
+service: todos-cjs
+
+provider:
+  name: aws
+  region: us-east-1
+
+functions:
+  hello:
+    handler: src/hello.handler          # module.exports = { handler }
+    events:
+      - http: GET /hello
+
+  list-todos:
+    handler: src/todos.list             # exports.list = ...
+    events:
+      - http: GET /todos
+  create-todo:
+    handler: src/todos.create
+    events:
+      - http: POST /todos
+  get-todo:
+    handler: src/todos.get
+    events:
+      - http: GET /todos/{id}
+  toggle-todo:
+    handler: src/todos.toggle
+    events:
+      - http: PATCH /todos/{id}
+
+providers:
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

@@ -1,0 +1,5 @@
+{
+  "orderId": "o-1003",
+  "channel": "b2b",
+  "items": [{"sku": "sku-book", "qty": 40, "price": 10}]
+}

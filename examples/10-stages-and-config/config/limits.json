@@ -1,0 +1,5 @@
+{
+  "dev": {"memory": 256, "concurrency": 2},
+  "staging": {"memory": 512, "concurrency": 10},
+  "prod": {"memory": 1024, "concurrency": 100}
+}

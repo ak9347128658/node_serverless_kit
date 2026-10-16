@@ -1,0 +1,13 @@
+{
+  "name": "nskit-example-scheduled-jobs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nskit dev",
+    "deploy": "nskit deploy"
+  },
+  "dependencies": {
+    "node-serverless-kit": "^0.1.0"
+  }
+}

@@ -1,0 +1,11 @@
+#   nskit deploy -c nskit.gcp.yml
+extends: nskit.yml
+
+provider:
+  name: gcp
+
+providers:
+  gcp:
+    region: europe-west1
+    options:
+      project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"

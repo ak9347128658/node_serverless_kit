@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+coverage/
+*.tgz
+.npmrc
+npm-debug.log*
+
+# node-serverless-kit working dirs (local terraform state, artifacts)
+.nskit/
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+CLAUDE.md
