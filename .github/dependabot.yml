@@ -7,10 +7,28 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: "chore(deps)"
+    # @vitest/coverage-v8 peers the exact same vitest release. A split bump
+    # fails `npm ci` with ERESOLVE. Vitest 5 also requires Node.js >= 22.12,
+    # and CI still runs Node 20 (`engines` is >= 20.19). Bump both together,
+    # and only after the Node 20 job is dropped.
+    ignore:
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitest/*"
+        update-types: ["version-update:semver-major"]
     groups:
+      # Keep vitest and its packages in one PR so their exact peer versions match.
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types: ["minor", "patch"]
       dev-dependencies:
         dependency-type: development
-        update-types: [minor, patch]
+        update-types: ["minor", "patch"]
+        exclude-patterns:
+          - "vitest"
+          - "@vitest/*"
 
   - package-ecosystem: github-actions
     directory: /

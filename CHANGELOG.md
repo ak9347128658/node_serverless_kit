@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- Dependabot no longer opens a major upgrade of `vitest` or `@vitest/coverage-v8` on its own. Those packages must be the same version (`@vitest/coverage-v8@5.0.4` peers `vitest@5.0.4`), and a split bump makes `npm ci` fail with `ERESOLVE` in the test job and in `terraform validate`. Vitest 5 also requires Node.js >= 22.12, while CI still runs Node 20.
+
 ## [0.1.0] - 2026-10-15
 
 Initial release: the Node.js sibling of [py-serverless-kit](https://github.com/ak9347128658/serverless_kit).
