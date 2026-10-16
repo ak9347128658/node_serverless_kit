@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { Project } from "../../src/core/project";
 import { Deployer } from "../../src/core/deployer";
 import { CloudflareProvider } from "../../src/providers/cloudflare";
+import { type Json } from "../../src/providers/terraform-doc";
 
 const CONFIG = `
 service: demo
@@ -78,7 +79,7 @@ export const double = defineHandler(async (event) => ({ value: (event.data as { 
 
 let root: string;
 let project: Project;
-let tf: Record<string, any>;
+let tf: Json;
 let workerFile: string;
 
 function writeProject(dir: string, config: string): void {
@@ -175,7 +176,7 @@ describe("terraform", () => {
     expect(hello.compatibility_flags).toEqual(["nodejs_compat"]);
     expect(hello.compatibility_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(hello).not.toHaveProperty("route");
-    const env = Object.fromEntries(hello.bindings.map((b: any) => [b.name, b]));
+    const env = Object.fromEntries(hello.bindings.map((b: Json) => [b.name, b]));
     expect(env.NSKIT_FUNCTION).toEqual({ name: "NSKIT_FUNCTION", type: "plain_text", text: "hello" });
     expect(env.GREETING.text).toBe("hello");
     expect(env).not.toHaveProperty("NSKIT_REGION"); // empty values are skipped
@@ -194,7 +195,7 @@ describe("terraform", () => {
   });
 
   test("cron triggers use named weekdays and skip disabled schedules", () => {
-    const crons = tf.resource.cloudflare_workers_cron_trigger.tick.schedules.map((s: any) => s.cron);
+    const crons = tf.resource.cloudflare_workers_cron_trigger.tick.schedules.map((s: Json) => s.cron);
     expect(crons).toEqual(["*/5 * * * *", "0 12 * * MON"]);
   });
 
@@ -218,9 +219,9 @@ describe("terraform", () => {
   test("options.invokes -> service bindings", () => {
     const caller = tf.resource.cloudflare_workers_script.caller;
     expect(caller).not.toHaveProperty("invokes");
-    const svc = caller.bindings.filter((b: any) => b.type === "service");
+    const svc = caller.bindings.filter((b: Json) => b.type === "service");
     expect(svc).toEqual([{ name: "NSKIT_BINDING_DOUBLE", type: "service", service: "${cloudflare_workers_script.double.script_name}" }]);
-    expect(tf.resource.cloudflare_workers_script.pipeline_orchestrator.bindings.some((b: any) => b.type === "service")).toBe(false);
+    expect(tf.resource.cloudflare_workers_script.pipeline_orchestrator.bindings.some((b: Json) => b.type === "service")).toBe(false);
   });
 
   test("nskit output", () => {
@@ -279,9 +280,11 @@ describe("built worker module", () => {
   test("scheduled: input found by cron", async () => {
     const mod = await import(pathToFileURL(workerFile).href);
     await mod.default.scheduled({ cron: "0 12 * * MON", scheduledTime: 1_700_000_000_000 }, { NSKIT_FUNCTION: "tick" }, ctx());
-    expect((globalThis as any).__tick).toEqual({ type: "schedule", data: { report: "weekly" }, source: "0 12 * * MON" });
+    const tick = (): { type: string; data: unknown; source: string } =>
+      (globalThis as { __tick: { type: string; data: unknown; source: string } }).__tick;
+    expect(tick()).toEqual({ type: "schedule", data: { report: "weekly" }, source: "0 12 * * MON" });
     await mod.default.scheduled({ cron: "*/5 * * * *", scheduledTime: 0 }, { NSKIT_FUNCTION: "tick" }, ctx());
-    expect((globalThis as any).__tick.data).toBeNull();
+    expect(tick().data).toBeNull();
   });
 
   test("queue: failed messages are retried, the rest acked", async () => {
