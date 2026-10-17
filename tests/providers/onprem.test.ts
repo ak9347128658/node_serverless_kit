@@ -180,4 +180,84 @@ functions:
     const volumes = tf.resource.docker_container.platform.volumes as { container_path: string }[];
     expect(volumes.some((v) => v.container_path === "/var/lib/nskit/objects")).toBe(true);
   });
+
+  test("rejects deploy targets that cannot be started", () => {
+    const ssh = makeProject(`
+service: demo
+provider: {name: onprem, options: {deploy: ssh}}
+functions:
+  w: {handler: src/handlers.hello, events: [{http: GET /x}]}
+`);
+    expect(errors(ssh).join("\n")).toContain("options.host");
+
+    const bundled = makeProject(`
+service: demo
+provider: {name: onprem, options: {deploy: bundle, runtime: bundled}}
+functions:
+  w: {handler: src/handlers.hello, events: [{http: GET /x}]}
+`);
+    expect(errors(bundled).join("\n")).toContain("node_binary");
+
+    const both = makeProject(`
+service: demo
+provider: {name: onprem, options: {deploy: ssh, host: app.internal, engine: docker}}
+functions:
+  w: {handler: src/handlers.hello, events: [{http: GET /x}]}
+`);
+    expect(errors(both).join("\n")).toContain("runtime: docker");
+
+    const unit = makeProject(`
+service: demo
+provider: {name: onprem, options: {deploy: ssh, host: app.internal, service: systemd, target_os: windows}}
+functions:
+  w: {handler: src/handlers.hello, events: [{http: GET /x}]}
+`);
+    expect(errors(unit).join("\n")).toContain("Linux only");
+  });
+
+  test("ssh copies with OpenSSH and prints the server in the URL", async () => {
+    const project = makeProject(CONFIG.replace(
+      'options: {http_port: 8090, publish: "127.0.0.1"}',
+      "options: {deploy: ssh, host: ops@10.0.0.8, ssh_port: 2222, ssh_key: C:/keys/id_ed25519, runtime: auto, http_port: 8090}",
+    ));
+    expect(errors(project)).toEqual([]);
+    const { tf } = await render(project);
+    expect(tf.terraform.required_providers).toEqual({});
+    const data = tf.resource.terraform_data.onprem;
+    expect(data.provisioner[0]["local-exec"].command).toBe("node onprem/push.mjs");
+    expect(data.provisioner[1]["local-exec"].command).toBe("node onprem/push.mjs");
+    expect(data.provisioner[1]["local-exec"].when).toBe("destroy");
+    expect(data.provisioner[0]["local-exec"].environment.NSKIT_SSH_HOST).toBe("10.0.0.8");
+    expect(data.provisioner[0]["local-exec"].environment.NSKIT_SSH_USER).toBe("ops");
+    expect(data.provisioner[0]["local-exec"].environment.NSKIT_SSH_PORT).toBe("2222");
+    expect(data.provisioner[0]["local-exec"].environment.NSKIT_ACTION).toBe("start");
+    expect(data.provisioner[1]["local-exec"].environment.NSKIT_ACTION).toBe("stop");
+    expect(data.input.endpoint).toBe("http://10.0.0.8:8090");
+    const platform = JSON.parse(readFileSync(path.join(project.workDir, "onprem", "platform.json"), "utf-8"));
+    expect(platform.entry).toBe("app/index.js");
+    expect(platform.dataDir).toBe("data");
+    expect(platform.deploy).toMatchObject({ mode: "ssh", runtime: "auto" });
+    expect(readFileSync(path.join(project.workDir, "onprem", "start.sh"), "utf-8")).not.toContain("\r\n");
+  });
+
+  test("bundle writes a folder and escapes user strings in Terraform", async () => {
+    const project = makeProject(CONFIG.replace(
+      'options: {http_port: 8090, publish: "127.0.0.1"}',
+      'options: {deploy: bundle, runtime: auto, publish: "lab-${slot}"}',
+    ));
+    expect(errors(project)).toEqual([]);
+    const { tf } = await render(project);
+    const exec = tf.resource.terraform_data.onprem.provisioner[0]["local-exec"];
+    expect(exec.command).toBe("node onprem/pack.mjs");
+    expect(exec.environment.NSKIT_PUBLISH).toBe("lab-$${slot}");
+    expect(exec.environment.NSKIT_ACTION).toBe("start");
+    expect(tf.resource.terraform_data.onprem.provisioner[1]["local-exec"].environment.NSKIT_ACTION).toBe("remove");
+    const bundle = path.join(project.workDir, "onprem", "bundle");
+    expect(existsSync(path.join(bundle, "app", "index.js"))).toBe(true);
+    expect(existsSync(path.join(bundle, "platform", "start.sh"))).toBe(true);
+    expect(existsSync(path.join(bundle, "platform", "start.ps1"))).toBe(true);
+    expect(readFileSync(path.join(bundle, "START.txt"), "utf-8")).toContain("Python, npm and a preinstalled Node.js are not required.");
+    expect(readFileSync(path.join(bundle, "platform", "launch.env"), "utf-8")).toContain("NSKIT_RUNTIME=auto");
+    expect(readFileSync(path.join(bundle, "platform", "start.sh"), "utf-8")).not.toMatch(/^\s*python3?\b/m);
+  });
 });

@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-17
+
+### Added
+
+- On-premises deploy targets. `deploy: local` (the default) still starts the process on the machine that runs Terraform. `deploy: ssh` copies the bundle with OpenSSH and starts it on the server. `deploy: bundle` writes a folder you copy yourself. `runtime: auto` uses a Node binary shipped in that folder, then Node.js 18+ on PATH, then Docker. `runtime: bundled` with `node_binary` runs where the server has no Node.js, npm or Python. `service: systemd` installs a user or system unit on Linux. `nskit remove` stops the remote process and leaves its data directory.
+- Example `19-on-premises-deploy`.
+
 ## [0.2.0] - 2026-10-17
 
 ### Added
@@ -44,7 +51,8 @@ Initial release: the Node.js sibling of [py-serverless-kit](https://github.com/a
 - Self-contained HTML deployment dashboard.
 - `scripts/validate-all-providers.mjs` (`npm run validate:terraform`) runs `terraform validate` for every provider; `scripts/check-version.mjs` keeps `package.json` and `src/version.ts` in sync.
 
-[Unreleased]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/ak9347128658/node_serverless_kit/releases/tag/v0.1.0

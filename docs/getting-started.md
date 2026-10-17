@@ -121,7 +121,7 @@ nskit runs Terraform, so credentials come from each Terraform provider's standar
 | `ibm` | `IC_API_KEY` |
 | `digitalocean` | `doctl auth init` (`doctl` must be on `PATH`; nskit deploys through `doctl serverless`). `options.namespace` is required |
 | `cloudflare` | `CLOUDFLARE_API_TOKEN` |
-| `onprem` | none. `engine: process` (the default) needs Node.js and Terraform on the machine that runs `nskit deploy`. `engine: docker` also needs a Docker daemon |
+| `onprem` | none. `deploy: local` needs Node.js, or Docker with `engine: docker`. `deploy: ssh` needs OpenSSH here and, on the server, Node.js, Docker, or a Node binary (`node_binary`). `deploy: bundle` only writes a folder. Python is not required. See [onprem](providers/onprem.md) |
 
 Required provider options (project ids, account ids, namespaces, ...) are listed on each [provider page](providers.md).
 

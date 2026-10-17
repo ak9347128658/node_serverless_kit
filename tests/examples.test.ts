@@ -3,7 +3,7 @@
  *
  * - discovers every directory under examples/ that contains an `nskit.yml`
  *   (recursively, e.g. 13-migrate-from-aws-lambda/after);
- * - validates it for its configured provider and for aws/gcp/azure;
+ * - validates it for its configured provider and for aws/gcp/azure/onprem;
  * - builds the artifact (and renders Terraform) for its configured provider;
  * - runs HTTP / invoke / queue / topic / storage / schedule / workflow cases with
  *   `LocalRunner` in bundle mode, i.e. through the same esbuild bundle as a deployment.
@@ -336,6 +336,9 @@ const HTTP_CASES: Record<string, HttpCase[]> = {
     { method: "POST", url: "/jobs", options: { json: { kind: "email" } }, status: 202, body: { accepted: true } },
     { method: "POST", url: "/jobs", options: { json: {} }, status: 400 },
   ],
+  "19-on-premises-deploy": [
+    { method: "GET", url: "/health", status: 200, body: { ok: true, provider: "local" } },
+  ],
 };
 
 // ------------------------------------------------------------------ other local scenarios
@@ -548,6 +551,10 @@ const PACKAGE_CHECKS: Record<string, PackageCheck> = {
     expect(existsSync(path.join(artifact.buildDir, "templates", "page.html"))).toBe(true);
     expect(readFileSync(path.join(artifact.buildDir, artifact.entryFile), "utf-8")).toContain("Served by {{provider}}");
   },
+  "19-on-premises-deploy": (doc) => {
+    expect(doc.terraform.required_providers).toEqual({});
+    expect(doc.resource.terraform_data.onprem.provisioner[0]["local-exec"].command).toBe("node onprem/pack.mjs");
+  },
 };
 
 // ------------------------------------------------------------------ the tests
@@ -572,6 +579,7 @@ it("discovers every example", () => {
     "16-javascript-commonjs",
     "17-typescript-paths",
     "18-on-premises",
+    "19-on-premises-deploy",
   ]);
   for (const rel of PROJECTS) {
     expect(existsSync(path.join(EXAMPLES, rel.split("/")[0], "README.md")), `${rel} README`).toBe(true);

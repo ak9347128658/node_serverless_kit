@@ -11,6 +11,14 @@
  *   `terraform_data` and a background supervisor. No Docker and no cloud account.
  * - `docker` runs the same supervisor in a container (`kreuzwerker/docker`) and
  *   can start Redis or MinIO beside it.
+ *
+ * `options.deploy` moves that same folder off this machine:
+ * - `local` (default) is the engine above.
+ * - `ssh` copies it to a server with OpenSSH and starts it there.
+ * - `bundle` writes a folder you carry (USB, artifact store, your own copy).
+ * `options.runtime` is how the server runs it when Node, npm or Python are
+ * missing: `system`, `bundled` (a Node binary you supply) or `docker`.
+ * `auto` tries those three in that order.
  */
 
 import { createHash } from "node:crypto";
@@ -30,11 +38,27 @@ import {
   type EntryContext,
   type RenderContext,
 } from "./base.js";
+import { stagePayload } from "../onprem/pack.mjs";
+import { expandHome, resolveNodeBinary } from "../onprem/runtime.mjs";
 import { option, planOnprem, queueSpecs, scheduleSpecs, validateOnprem, type OnpremPlan, type ServiceRef } from "./onprem-plan.js";
 import { escape, TerraformDoc } from "./terraform-doc.js";
 
 const PLATFORM_DIR = "onprem";
-const SCRIPT_FILES = ["supervisor.mjs", "broker.mjs", "redis.mjs", "s3.mjs", "launch.mjs", "stop.mjs"];
+const SCRIPT_FILES = [
+  "supervisor.mjs",
+  "broker.mjs",
+  "redis.mjs",
+  "s3.mjs",
+  "launch.mjs",
+  "stop.mjs",
+  "start.sh",
+  "start.ps1",
+  "stop.sh",
+  "stop.ps1",
+  "push.mjs",
+  "pack.mjs",
+  "runtime.mjs",
+];
 
 export function onpremScriptDir(): string {
   const here = path.dirname(fileURLToPath(import.meta.url));
@@ -80,7 +104,9 @@ export class OnpremProvider extends Provider {
   override readonly notes =
     "Runs on a machine you control. HTTP and schedules need nothing else. Queues, topics and " +
     "storage use a built-in broker unless options.queue / topic / storage names Redis, MinIO, " +
-    "a directory or an http:// URL. engine: process (default) or docker.";
+    "a directory or an http:// URL. deploy: local (default), ssh or bundle. " +
+    "runtime: system, bundled (a Node binary you ship; the server needs no Node, npm or Python) or docker. " +
+    "engine: process (default) or docker.";
   override readonly bundle: BundleTarget = { format: "cjs", platform: "node", entryFile: "index.js" };
 
   override initDoc(ctx: RenderContext): TerraformDoc {
@@ -139,10 +165,12 @@ export class OnpremProvider extends Provider {
       };
     }
     const storage = { ...plan.storage };
-    if (plan.engine === "docker" && storage.kind === "dir") storage.path = "/var/lib/nskit/objects";
+    const inContainer = plan.engine === "docker" || (plan.deploy !== "local" && plan.runtime === "docker");
+    if (inContainer && storage.kind === "dir") storage.path = "/var/lib/nskit/objects";
     if (plan.engine === "docker" && storage.kind === "builtin") {
       /* data dir is the container path; the broker reads platform.dataDir */
     }
+    const remote = plan.deploy !== "local";
     const workflows: Record<string, unknown> = {};
     for (const name of Object.keys(ctx.config.workflows).sort()) workflows[name] = { orchestrator: `${name}-orchestrator` };
     return {
@@ -150,8 +178,15 @@ export class OnpremProvider extends Provider {
       stage: ctx.stage,
       provider: "onprem",
       region: ctx.region,
-      entry: plan.engine === "docker" ? "/opt/nskit/app/index.js" : dockerPath(path.join(ctx.artifact.buildDir, ctx.artifact.entryFile)),
-      dataDir: plan.engine === "docker" ? "/var/lib/nskit" : dockerPath(path.join(ctx.workDir, PLATFORM_DIR, plan.dataDirName)),
+      entry:
+        plan.engine === "docker"
+          ? "/opt/nskit/app/index.js"
+          : remote
+            ? "app/index.js"
+            : dockerPath(path.join(ctx.artifact.buildDir, ctx.artifact.entryFile)),
+      dataDir:
+        plan.engine === "docker" ? "/var/lib/nskit" : remote ? "data" : dockerPath(path.join(ctx.workDir, PLATFORM_DIR, plan.dataDirName)),
+      deploy: { mode: plan.deploy, runtime: plan.runtime, service: plan.service, targetOs: plan.targetOs },
       pollMs: Number(ctx.opt("poll_ms", 1000)) || 1000,
       apiKey: plan.apiKey,
       http: { host: plan.httpHost, port: plan.httpPort },
@@ -201,8 +236,92 @@ export class OnpremProvider extends Provider {
     const plan = planOnprem(ctx.config);
     const written = this.writePlatform(ctx, plan);
     if (plan.engine === "docker") this.renderDocker(doc, ctx, plan, written);
+    else if (plan.deploy === "ssh") this.renderSsh(doc, ctx, plan, written);
+    else if (plan.deploy === "bundle") this.renderBundle(doc, ctx, plan, written);
     else this.renderProcess(doc, ctx, plan, written);
     this.renderOutput(doc, ctx, plan);
+  }
+
+  private launchVars(ctx: RenderContext, plan: OnpremPlan): Record<string, string> {
+    return {
+      NSKIT_RUNTIME: plan.runtime,
+      NSKIT_SERVICE: plan.service,
+      NSKIT_TARGET_OS: plan.targetOs,
+      NSKIT_HTTP_PORT: String(plan.httpPort),
+      NSKIT_PUBLISH: plan.publish,
+      NSKIT_NODE_IMAGE: plan.nodeImage,
+      NSKIT_REDIS_IMAGE: plan.redisImage,
+      NSKIT_MINIO_IMAGE: plan.minioImage,
+      NSKIT_DEPLOY_REDIS: plan.deployRedis ? "1" : "0",
+      NSKIT_DEPLOY_MINIO: plan.deployMinio ? "1" : "0",
+      NSKIT_MINIO_USER: plan.deployMinio ? plan.minioUser : "",
+      NSKIT_MINIO_PASSWORD: plan.deployMinio ? plan.minioPassword : "",
+      NSKIT_CONTAINER: ctx.physicalName("platform"),
+      NSKIT_SERVICE_NAME: ctx.service,
+      NSKIT_STAGE: ctx.stage,
+      NSKIT_SYSTEMD_SCOPE: plan.systemdScope,
+      // Host path. start.sh makes a relative path absolute and, for Docker, mounts it.
+      // platform.json carries the path the process should open (a container path when runtime is docker).
+      NSKIT_STORAGE_DIR: plan.storage.kind === "dir" ? plan.storage.path || "" : "",
+    };
+  }
+
+  private remoteEnv(ctx: RenderContext, plan: OnpremPlan, written: { dir: string }): Record<string, string> {
+    const nodeBinary = plan.nodeBinary ? dockerPath(path.resolve(resolveNodeBinary(plan.nodeBinary))) : "";
+    const vars = this.launchVars(ctx, plan);
+    return {
+      ...vars,
+      NSKIT_APP_DIR: dockerPath(ctx.artifact.buildDir),
+      NSKIT_PLATFORM_DIR: dockerPath(written.dir),
+      NSKIT_NODE_BINARY: nodeBinary,
+      NSKIT_BUNDLE_DIR: dockerPath(path.join(written.dir, "bundle")),
+      NSKIT_SSH_HOST: plan.host,
+      NSKIT_SSH_USER: plan.sshUser,
+      NSKIT_SSH_PORT: String(plan.sshPort || 22),
+      NSKIT_SSH_KEY: plan.sshKey ? dockerPath(path.resolve(expandHome(plan.sshKey))) : "",
+      NSKIT_SSH_STRICT: plan.sshStrict ? "1" : "0",
+      NSKIT_REMOTE_DIR: plan.remoteDir || `nskit/${ctx.service}-${ctx.stage}`,
+    };
+  }
+
+  private renderSsh(doc: TerraformDoc, ctx: RenderContext, plan: OnpremPlan, written: { dir: string; hash: string }): void {
+    const env = this.remoteEnv(ctx, plan, written);
+    doc.resource("terraform_data", "onprem", {
+      triggers_replace: [ctx.artifact.sha256, written.hash, plan.host, env.NSKIT_REMOTE_DIR, plan.runtime],
+      input: { endpoint: `http://${plan.publish}:${plan.httpPort}`, host: plan.host, remote_dir: env.NSKIT_REMOTE_DIR },
+      provisioner: [
+        this.exec("node onprem/push.mjs", { ...env, NSKIT_ACTION: "start" }),
+        this.exec("node onprem/push.mjs", { ...env, NSKIT_ACTION: "stop" }, true),
+      ],
+    });
+  }
+
+  private renderBundle(doc: TerraformDoc, ctx: RenderContext, plan: OnpremPlan, written: { dir: string; hash: string }): void {
+    const env = this.remoteEnv(ctx, plan, written);
+    stagePayload({
+      dest: path.join(written.dir, "bundle"),
+      appDir: ctx.artifact.buildDir,
+      platformDir: written.dir,
+      nodeBinary: plan.nodeBinary,
+      targetOs: plan.targetOs,
+      envVars: env,
+    });
+    doc.resource("terraform_data", "onprem", {
+      triggers_replace: [ctx.artifact.sha256, written.hash, plan.runtime],
+      input: { endpoint: `http://${plan.publish}:${plan.httpPort}`, bundle: env.NSKIT_BUNDLE_DIR },
+      provisioner: [
+        this.exec("node onprem/pack.mjs", { ...env, NSKIT_ACTION: "start" }),
+        this.exec("node onprem/pack.mjs", { ...env, NSKIT_ACTION: "remove" }, true),
+      ],
+    });
+  }
+
+  private exec(command: string, environment: Record<string, string>, destroy = false): Record<string, unknown> {
+    const escaped: Record<string, string> = {};
+    for (const [key, value] of Object.entries(environment)) escaped[key] = escape(value);
+    const block: Record<string, unknown> = { working_dir: "${path.module}", command, environment: escaped };
+    if (destroy) block.when = "destroy";
+    return { "local-exec": block };
   }
 
   private renderProcess(doc: TerraformDoc, ctx: RenderContext, plan: OnpremPlan, written: { dir: string; hash: string }): void {
@@ -210,6 +329,13 @@ export class OnpremProvider extends Provider {
     const platformFile = dockerPath(path.join(written.dir, "platform.json"));
     const entry = dockerPath(path.join(ctx.artifact.buildDir, ctx.artifact.entryFile));
     const dataDir = dockerPath(path.join(written.dir, plan.dataDirName));
+    const environment: Record<string, string> = {
+      NSKIT_PLATFORM: platformFile,
+      NSKIT_ENTRY: entry,
+      NSKIT_PIDFILE: pid,
+      NSKIT_DATA_DIR: dataDir,
+    };
+    if (plan.runtime === "bundled" && plan.nodeBinary) environment.NSKIT_NODE = dockerPath(path.resolve(resolveNodeBinary(plan.nodeBinary)));
     doc.resource("terraform_data", "onprem", {
       triggers_replace: [ctx.artifact.sha256, written.hash],
       input: { endpoint: `http://${plan.publish}:${plan.httpPort}`, pidfile: pid },
@@ -218,12 +344,7 @@ export class OnpremProvider extends Provider {
           "local-exec": {
             working_dir: "${path.module}",
             command: "node onprem/launch.mjs",
-            environment: {
-              NSKIT_PLATFORM: platformFile,
-              NSKIT_ENTRY: entry,
-              NSKIT_PIDFILE: pid,
-              NSKIT_DATA_DIR: dataDir,
-            },
+            environment,
           },
         },
         {

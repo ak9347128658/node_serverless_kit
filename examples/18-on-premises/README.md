@@ -33,6 +33,9 @@ provider:
 and a Docker daemon. `builtin` (the default when a trigger needs it) keeps the data next to the
 Terraform state, under `.nskit/onprem-<stage>/onprem/data`.
 
+To copy the same service onto another machine, including one with no Node.js, see
+[19-on-premises-deploy](../19-on-premises-deploy).
+
 ## What the deploy starts
 
 | Trigger | Nothing named in options | You name a service | `engine: docker` |

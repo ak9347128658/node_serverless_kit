@@ -50,7 +50,7 @@ service can be live on several clouds at once.
 | ibm | `IC_API_KEY` | Code Engine functions; HTTP only |
 | digitalocean | `options.namespace`, `doctl` on PATH | deployed with `doctl serverless` |
 | cloudflare | `options.account_id` | Workers (V8 isolates: web APIs only, no `node:*` modules) |
-| onprem | nothing | one Node.js process; no cloud account. `nskit deploy -c nskit.onprem.yml` |
+| onprem | nothing for `deploy: local` | one process on this machine, over SSH, or from a folder. `nskit deploy -c nskit.onprem.yml` |
 
 Where a cloud lacks a feature, the override says so explicitly: `functions.ticker.events: []` on
 IBM and Oracle deploys `ticker` without a schedule instead of failing. `runtime` is not pinned,

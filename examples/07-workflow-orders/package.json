@@ -9,7 +9,7 @@
     "deploy": "nskit deploy"
   },
   "dependencies": {
-    "node_serverless_kit": "^0.2.0"
+    "node_serverless_kit": "^0.3.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

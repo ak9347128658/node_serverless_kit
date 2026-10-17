@@ -223,6 +223,9 @@ export async function startPlatform(options = {}) {
   const platform = loadPlatform(options);
   const entry = options.entry || process.env.NSKIT_ENTRY || platform.entry;
   if (!entry) throw new Error("NSKIT_ENTRY is not set");
+  // Captured before processEnv is copied. start.sh sets these because a copied
+  // bundle does not know its absolute path when platform.json is written.
+  const dataDir = options.dataDir || process.env.NSKIT_DATA_DIR || platform.dataDir || "";
   const bundle = createRequire(entry)(entry);
   if (typeof bundle.handler !== "function") throw new Error(`bundle ${entry} does not export handler`);
 
@@ -239,8 +242,12 @@ export async function startPlatform(options = {}) {
   const redisCache = new Map();
   let builtin;
   function builtinBroker() {
-    builtin ??= createBroker({ dataDir: platform.dataDir || "" });
+    builtin ??= createBroker({ dataDir });
     return builtin;
+  }
+
+  function dirRoot(spec) {
+    return process.env.NSKIT_STORAGE_DIR || spec.path || dataDir || ".";
   }
 
   async function serviceClient(spec) {
@@ -263,7 +270,7 @@ export async function startPlatform(options = {}) {
       const body = Buffer.from(bytes);
       const rel = safeObjectKey(key);
       if (spec.kind === "dir") {
-        const file = path.join(spec.path || platform.dataDir || ".", rel);
+        const file = path.join(dirRoot(spec), rel);
         mkdirSync(path.dirname(file), { recursive: true });
         writeFileSync(file, body);
         return key;
@@ -279,7 +286,7 @@ export async function startPlatform(options = {}) {
       const rel = safeObjectKey(key);
       if (spec.kind === "dir") {
         try {
-          unlinkSync(path.join(spec.path || platform.dataDir || ".", rel));
+          unlinkSync(path.join(dirRoot(spec), rel));
         } catch {
           /* already gone */
         }

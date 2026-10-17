@@ -49,7 +49,7 @@ Every generated configuration passes `terraform validate`; the repository's `scr
 | [ibm](providers/ibm.md) | `IBM-Cloud/ibm` |
 | [digitalocean](providers/digitalocean.md) | built-in `terraform_data` (deploys with `doctl`) |
 | [cloudflare](providers/cloudflare.md) | `cloudflare/cloudflare` |
-| [onprem](providers/onprem.md) | built-in `terraform_data` (default) or `kreuzwerker/docker` |
+| [onprem](providers/onprem.md) | built-in `terraform_data` (local, ssh and bundle) or `kreuzwerker/docker` |
 
 ## Writing your own provider
 

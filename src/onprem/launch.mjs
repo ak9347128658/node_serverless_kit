@@ -6,13 +6,18 @@
  */
 
 import { spawn } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const pidFile = process.env.NSKIT_PIDFILE || path.join(dir, "supervisor.pid");
-const child = spawn(process.execPath, [path.join(dir, "supervisor.mjs")], {
+const nodeBin = process.env.NSKIT_NODE || process.execPath;
+if (nodeBin !== process.execPath && !existsSync(nodeBin)) {
+  console.error(`nskit: NSKIT_NODE does not exist: ${nodeBin}`);
+  process.exit(1);
+}
+const child = spawn(nodeBin, [path.join(dir, "supervisor.mjs")], {
   detached: true,
   stdio: "ignore",
   windowsHide: true,

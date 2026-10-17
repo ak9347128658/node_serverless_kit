@@ -25,12 +25,13 @@ it by changing only the provider (`npx nskit deploy --provider gcp`).
 | 16 | [javascript-commonjs](16-javascript-commonjs) | JavaScript (CommonJS) | `require()`, `module.exports = { handler }`, `exports.list = ...` |
 | 17 | [typescript-paths](17-typescript-paths) | TypeScript | `tsconfig` path aliases, shared modules, bundled HTML template via `package.esbuild` |
 | 18 | [on-premises](18-on-premises) | TypeScript | every trigger on one machine: built-in broker, or Redis / MinIO / a directory you already run |
+| 19 | [on-premises-deploy](19-on-premises-deploy) | TypeScript | `deploy: local`, `ssh` or `bundle`; `runtime: system`, `bundled` or `docker` when the server has no Node.js, npm or Python |
 
 ## How they are tested
 
 `tests/examples.test.ts` (part of `npm test`) discovers every directory with an `nskit.yml` and:
 
-- validates it for its configured provider and for AWS, GCP and Azure;
+- validates it for its configured provider and for AWS, GCP, Azure and on-premises;
 - builds the artifact and renders the Terraform for its configured provider;
 - runs its HTTP routes, invoke / queue / topic / storage / schedule calls and workflows locally with
   `LocalRunner` in bundle mode, i.e. through the same esbuild bundle that gets deployed;

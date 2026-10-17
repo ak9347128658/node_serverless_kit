@@ -67,7 +67,7 @@ Teams that build on AWS Lambda and Step Functions end up with code full of API G
 
 ## Features
 
-- **11 providers:** AWS Lambda, Azure Functions, Google Cloud Functions, Alibaba Function Compute, Tencent SCF, Huawei FunctionGraph, Oracle Functions, IBM Code Engine, DigitalOcean Functions, Cloudflare Workers, and on-premises (a Node.js process on your machine, with queues, topics and storage brought up for you).
+- **11 providers:** AWS Lambda, Azure Functions, Google Cloud Functions, Alibaba Function Compute, Tencent SCF, Huawei FunctionGraph, Oracle Functions, IBM Code Engine, DigitalOcean Functions, Cloudflare Workers, and on-premises (a process on this machine, copied over SSH, or packed as a folder, with queues, topics and storage brought up for you). The server can run a Node.js you ship, Node.js already on PATH, or Docker. Python and npm are not required there.
 - **TypeScript and JavaScript, ESM and CommonJS:** `.ts`, `.mts`, `.cts`, `.tsx`, `.js`, `.mjs`, `.cjs`, `.jsx`, bundled by esbuild with tsconfig `paths` support. Each handler module is loaded lazily on its first invocation.
 - **Triggers:** HTTP (path params, CORS, auth), schedules (rate/cron, translated into each cloud's dialect), queues, object storage, pub/sub topics, and direct function-to-function `invoke()`.
 - **Workflows:** task / choice / wait / pass / parallel / map / succeed / fail with retry and catch. Native on AWS (Step Functions) and GCP (Cloud Workflows); an embedded engine elsewhere; runnable locally with `nskit workflow run`.
@@ -234,6 +234,7 @@ Runnable scenarios live in [`examples/`](https://github.com/ak9347128658/node_se
 | [07-workflow-orders](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/07-workflow-orders) | Every workflow state type, retry/catch |
 | [08-multi-cloud](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/08-multi-cloud) | Same code, all 11 providers |
 | [18-on-premises](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/18-on-premises) | HTTP, schedules, queues, topics, storage, invoke and workflows on one machine |
+| [19-on-premises-deploy](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/19-on-premises-deploy) | Copy that process over SSH, as a folder, or with a Node binary or Docker when the server has neither |
 | [09-function-invoke](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/09-function-invoke) | Function-to-function `invoke()` |
 | [10-stages-and-config](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/10-stages-and-config) | Stages, variables, secrets |
 | [11-custom-terraform](https://github.com/ak9347128658/node_serverless_kit/tree/main/examples/11-custom-terraform) | `terraform.extra`, `${tf:...}`, remote state, hooks |
