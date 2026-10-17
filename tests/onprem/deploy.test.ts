@@ -1,4 +1,4 @@
-import { chmodSync, copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -155,6 +155,42 @@ function hasSh(): boolean {
   return spawnSync("sh", ["-c", "exit 0"], { stdio: "ignore" }).status === 0;
 }
 
+function locateSh(): string | null {
+  if (process.platform === "win32") {
+    const result = spawnSync("where.exe", ["sh"], { encoding: "utf8" });
+    if (result.status !== 0) return null;
+    const lines = (result.stdout || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    return lines.find((line) => !line.toLowerCase().endsWith(".cmd")) || lines[0] || null;
+  }
+  const result = spawnSync("sh", ["-c", "command -v sh"], { encoding: "utf8" });
+  if (result.status !== 0) return null;
+  return (result.stdout || "").trim() || null;
+}
+
+/**
+ * A PATH that contains sh and nothing else. Replacing PATH with the platform
+ * directory makes Node unable to spawn sh (status null, empty stderr). Dropping
+ * every directory that contains docker also drops dirname on Ubuntu, where
+ * /usr/bin holds both. The start script resolves its own directory with builtins.
+ */
+function pathWithOnlySh(): string {
+  const sh = locateSh();
+  if (!sh) return "";
+  const bin = path.join(temp(), "bin");
+  mkdirSync(bin);
+  const dest = path.join(bin, process.platform === "win32" ? "sh.exe" : "sh");
+  try {
+    symlinkSync(sh, dest);
+  } catch {
+    if (process.platform === "win32") writeFileSync(path.join(bin, "sh.cmd"), `@echo off\r\n"${sh}" %*\r\n`);
+    else {
+      writeFileSync(dest, `#!${sh}\nexec "${sh}" "$@"\n`);
+      chmodSync(dest, 0o755);
+    }
+  }
+  return bin;
+}
+
 function plant(runtime: string, node: "none" | "ok" | "old" | "bad"): { platform: string } {
   const dir = temp();
   const platform = path.join(dir, "platform");
@@ -200,25 +236,36 @@ describe.skipIf(!hasSh())("start.sh", () => {
   });
 
   test("says what is missing when the server has no Node and no Docker", () => {
-    const empty = plant("auto", "none").platform;
-    const result = planSh(empty, empty);
-    expect(result.status).not.toBe(0);
+    const hidden = pathWithOnlySh();
+    expect(hidden).not.toBe("");
+    const result = planSh(plant("auto", "none").platform, hidden);
+    expect(result.status).toBe(1);
     expect(result.stderr).toContain(MESSAGES.none);
-    const system = planSh(plant("system", "none").platform, empty);
+    const system = planSh(plant("system", "none").platform, hidden);
+    expect(system.status).toBe(1);
     expect(system.stderr).toContain(MESSAGES.systemMissing);
   });
 });
 
+function powershellBin(): string | null {
+  for (const bin of ["powershell", "pwsh"]) {
+    if (spawnSync(bin, ["-NoProfile", "-Command", "exit 0"], { stdio: "ignore" }).status === 0) return bin;
+  }
+  return null;
+}
+
+const psBin = powershellBin();
+
 function planPs(platform: string, env: NodeJS.ProcessEnv = process.env): { status: number | null; stdout: string; stderr: string } {
   const result = spawnSync(
-    "powershell",
+    psBin || "powershell",
     ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(platform, "start.ps1"), "-PlanOnly"],
     { encoding: "utf8", env },
   );
   return { status: result.status, stdout: result.stdout || "", stderr: result.stderr || "" };
 }
 
-describe("start.ps1", () => {
+describe.skipIf(psBin === null)("start.ps1", () => {
   test("reports the system Node, a shipped node.exe, or a clear miss", () => {
     const dir = temp();
     const platform = path.join(dir, "platform");

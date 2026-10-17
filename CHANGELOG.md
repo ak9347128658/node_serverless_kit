@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ### Fixed
 
 - Dependabot no longer proposes TypeScript 7.x. `typescript-eslint` 8 peers `typescript >=4.8.4 <6.1.0`, and TypeScript 7.0 does not ship the compiler API that ESLint and tsup use, so `npm ci` fails with `ERESOLVE` in every CI job. TypeScript 6.0.x stays allowed.
+- On-premises `start.sh` and `stop.sh` find their directory without `dirname`, so a PATH that has a shell but not coreutils still reports a missing Node.js and Docker. The PowerShell start check runs only where `powershell` or `pwsh` is installed.
 
 ## [0.3.0] - 2026-10-17
 

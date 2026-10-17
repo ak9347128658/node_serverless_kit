@@ -2,7 +2,24 @@
 # Stop a service started by start.sh. A POSIX shell is enough. Python is not used.
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+# Same builtin resolution as start.sh: dirname may be absent from PATH.
+script=$0
+while :; do
+  case $script in
+    *\\*)
+      next=${script%%\\*}/${script#*\\}
+      [ "$next" != "$script" ] || break
+      script=$next
+      ;;
+    *) break ;;
+  esac
+done
+case $script in
+  */*) script_dir=${script%/*} ;;
+  *) script_dir=. ;;
+esac
+CDPATH= cd -- "$script_dir"
+ROOT=$PWD
 cr=$(printf '\r')
 nl='
 '

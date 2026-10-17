@@ -4,7 +4,25 @@
 # the supervisor, and exits so a deploy over SSH can return.
 set -eu
 
-ROOT=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+# Directory of this file, using only builtins. PATH may hide every directory
+# that also contains node or docker, and those directories are where dirname lives.
+script=$0
+while :; do
+  case $script in
+    *\\*)
+      next=${script%%\\*}/${script#*\\}
+      [ "$next" != "$script" ] || break
+      script=$next
+      ;;
+    *) break ;;
+  esac
+done
+case $script in
+  */*) script_dir=${script%/*} ;;
+  *) script_dir=. ;;
+esac
+CDPATH= cd -- "$script_dir"
+ROOT=$PWD
 ENVFILE="$ROOT/launch.env"
 PIDFILE="$ROOT/supervisor.pid"
 MODEFILE="$ROOT/runtime.mode"
