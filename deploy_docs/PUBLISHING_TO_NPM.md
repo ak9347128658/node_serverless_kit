@@ -207,7 +207,7 @@ npm pack --dry-run
 npm publish --access public         # prepublishOnly runs `npm run check` again
 ```
 
-`--access public` is also set through `publishConfig.access` in `package.json`; passing it explicitly doesn't hurt. With 2FA for writes, npm asks for a one-time password, or opens the browser for web authentication. You can pass it directly with `--otp 123456`.
+`--access public` is also set through `publishConfig.access` in `package.json`; passing it explicitly doesn't hurt. With 2FA for writes, npm 11 opens a browser even when `npm whoami` already succeeds. Approve that page and wait. `--otp <code>` only works with an authenticator code. A `403` on `GET /-/v1/done` means that login died; see the troubleshooting table.
 
 Then push the commit and tag (`git push origin main --follow-tags`). The release workflow runs on the tag, sees that this version is already on npm, skips the publish step and still creates the GitHub release from the CHANGELOG section.
 
@@ -303,6 +303,7 @@ npm audit signatures
 
 | Error | Cause | Fix |
 |---|---|---|
+| `E403 Forbidden - GET https://registry.npmjs.org/-/v1/done` | Web login for the publish write did not finish. npm 11 returns `401` on `PUT` and opens a browser even when `npm whoami` works. A dropped connection (`ENOTFOUND`, `ECONNRESET`) makes the follow-up poll `403` | Approve the browser page and wait. Retry `npm publish --access public` on a stable connection. Or set a granular token with **Read and write** and **Bypass 2FA** in the user `.npmrc` |
 | `E403 Forbidden ... You do not have permission to publish "node_serverless_kit"` | The name belongs to another account, or you are logged in as the wrong user | `npm whoami`; `npm owner ls node_serverless_kit`; ask an owner to run `npm owner add <you> node_serverless_kit` |
 | `E403 ... Package name too similar to existing package` | npm's typosquatting protection | Choose another name |
 | `E403 ... Two-factor authentication or granular access token with bypass 2fa enabled is required` | Publishing with a token that can't satisfy 2FA | Use a granular token with **Bypass 2FA**, or trusted publishing |

@@ -92,10 +92,23 @@ git tag -a vX.Y.Z -m "vX.Y.Z"
 `node_serverless_kit@0.1.0` is already on npm under this account. Publish `0.1.1` from this repo. Do not publish `0.1.0` again.
 
 ```bash
-npm whoami
-npm publish --access public       # asks for your 2FA code; or add --otp 123456
+npm whoami                        # must print ak2311581
+npm publish --access public
 git push origin main --follow-tags
 ```
+
+`npm whoami` only checks the saved login. A publish is a write, so npm 11 answers the upload with `401` and opens a browser page (`Press ENTER to open in the browser`). Approve that page and leave the terminal running until it prints the published version.
+
+If the next line is `403 Forbidden - GET https://registry.npmjs.org/-/v1/done`, the browser login died before it finished. This run also logged `ENOTFOUND` and `ECONNRESET` against the registry, so the network dropped while npm was waiting. Run `npm publish --access public` again on a stable connection and approve the new page. A one-time password (`--otp`) is only for an authenticator app. It does not replace that page.
+
+If the browser step keeps failing, create a granular access token at <https://www.npmjs.com/settings/ak2311581/tokens> with **Read and write** on `node_serverless_kit` and **Bypass 2FA** enabled, revoke the old token, then:
+
+```powershell
+npm config set //registry.npmjs.org/:_authToken npm_your_new_token
+npm publish --access public
+```
+
+Do not commit that token. It belongs in `%USERPROFILE%\.npmrc` only.
 
 ## 4b. Every later release: push the tag
 
@@ -121,6 +134,7 @@ Check <https://www.npmjs.com/package/node_serverless_kit> (README, version, Prov
 | Problem | Fix |
 |---|---|
 | `EOTP` | Add `--otp <code>` or finish the browser prompt |
+| `E403` on `GET .../-/v1/done` after `Press ENTER to open in the browser` | The write login did not finish. `npm whoami` can still succeed. Approve the new browser page; if the log also shows `ENOTFOUND` or `ECONNRESET`, retry on a stable connection, or publish with a granular token that has Bypass 2FA |
 | `E403` / not allowed to publish | `npm whoami`; you must be an owner (`npm owner ls node_serverless_kit`) |
 | `EPUBLISHCONFLICT` / cannot publish over existing version | Bump the version; numbers can't be reused |
 | `ENEEDAUTH` / `E404` on PUT in CI | Check the trusted publisher fields (repo, `release.yml`, environment `npm`) or the `NPM_TOKEN` secret |
