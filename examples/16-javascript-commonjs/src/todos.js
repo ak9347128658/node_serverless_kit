@@ -1,6 +1,6 @@
 "use strict";
 
-const { BadRequest, HttpResponse, NotFound } = require("node-serverless-kit");
+const { BadRequest, HttpResponse, NotFound } = require("node_serverless_kit");
 const store = require("./lib/store");
 
 function mustGet(id) {

@@ -32,7 +32,7 @@ import { eventFromRequest, runHttp } from "./httpfn.js";
 export const PROVIDER = "cloudflare";
 
 /** Where the current Worker `env` is kept, for code that needs non-string bindings (e.g. service bindings). */
-export const ENV_KEY = Symbol.for("node-serverless-kit.cloudflare-env");
+export const ENV_KEY = Symbol.for("node_serverless_kit.cloudflare-env");
 
 type Obj = Record<string, unknown>;
 

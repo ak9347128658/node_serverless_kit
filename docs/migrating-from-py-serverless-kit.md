@@ -1,13 +1,13 @@
 # Migrating from py-serverless-kit
 
-node-serverless-kit (`nskit`) is the Node.js sibling of [py-serverless-kit](https://github.com/ak9347128658/serverless_kit) (`pskit`). The architecture, the YAML shape, the providers and the Terraform output are the same, so most of a migration is renaming. The handler code has to be rewritten in TypeScript or JavaScript, but the API maps one to one.
+node_serverless_kit (`nskit`) is the Node.js sibling of [py-serverless-kit](https://github.com/ak9347128658/serverless_kit) (`pskit`). The architecture, the YAML shape, the providers and the Terraform output are the same, so most of a migration is renaming. The handler code has to be rewritten in TypeScript or JavaScript, but the API maps one to one.
 
 ## Files and commands
 
-| py-serverless-kit | node-serverless-kit |
+| py-serverless-kit | node_serverless_kit |
 |---|---|
-| `pip install py-serverless-kit` | `npm install node-serverless-kit` |
-| CLI `pskit` (alias `py-serverless-kit`) | CLI `nskit` (alias `node-serverless-kit`) |
+| `pip install py-serverless-kit` | `npm install node_serverless_kit` |
+| CLI `pskit` (alias `py-serverless-kit`) | CLI `nskit` (alias `node_serverless_kit`) |
 | `pskit.yml`, `pskit.yaml`, `serverless_kit.yml`, `serverless_kit.yaml` | `nskit.yml`, `nskit.yaml`, `serverless-kit.yml`, `serverless-kit.yaml` |
 | `.pskit/<provider>-<stage>/` | `.nskit/<provider>-<stage>/` |
 | `requirements.txt`, `package.requirements`, `pip_args`, `vendor` | `package.json` dependencies, bundled by esbuild; native modules in `package.external`; extra files in `package.include`; build tweaks in `package.esbuild` (see [typescript-and-javascript.md](typescript-and-javascript.md)) |
@@ -15,7 +15,7 @@ node-serverless-kit (`nskit`) is the Node.js sibling of [py-serverless-kit](http
 | `pskit invoke -t queue` | `nskit invoke -e queue` |
 | `pskit dashboard -d ./project` | `nskit dashboard ./project` (positional directory) |
 | `pskit tf -- state list` | `nskit tf state list` |
-| `pytest` + `py_serverless_kit.local.LocalRunner` | Vitest/Jest + `LocalRunner` from `node-serverless-kit/testing` (see [local-development.md](local-development.md)) |
+| `pytest` + `py_serverless_kit.local.LocalRunner` | Vitest/Jest + `LocalRunner` from `node_serverless_kit/testing` (see [local-development.md](local-development.md)) |
 
 ## `nskit.yml`
 
@@ -62,8 +62,8 @@ def get_order(event: Event, ctx: Context):
 ```
 
 ```ts
-// node-serverless-kit
-import { defineHandler, NotFound } from "node-serverless-kit";
+// node_serverless_kit
+import { defineHandler, NotFound } from "node_serverless_kit";
 
 export const getOrder = defineHandler((event, ctx) => {
   const order = ORDERS[event.http!.pathParams.id];

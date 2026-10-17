@@ -343,7 +343,7 @@ export class CloudflareProvider extends Provider {
       const orch = fnOut[`${wfName}-orchestrator`];
       wfOut[wfName] = orch ? { id: orch.id, ...(orch.url ? { url: orch.url } : {}) } : { id: ctx.physicalName(`${wfName}-orchestrator`) };
     }
-    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node-serverless-kit deployment summary" });
+    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node_serverless_kit deployment summary" });
   }
 
   // ------------------------------------------------------------------ pieces

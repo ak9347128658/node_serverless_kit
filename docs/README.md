@@ -1,4 +1,4 @@
-# node-serverless-kit documentation
+# node_serverless_kit documentation
 
 Write a Node.js function once (TypeScript or JavaScript, ESM or CommonJS), describe its triggers in `nskit.yml`, and deploy it to any of 10 clouds with esbuild and Terraform. Moving to another cloud means changing `provider.name`. The handler code stays the same.
 

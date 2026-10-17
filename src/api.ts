@@ -2,7 +2,7 @@
  * Programmatic API: everything the `nskit` CLI does, as functions.
  *
  * ```ts
- * import { Project, Deployer } from "node-serverless-kit/api";
+ * import { Project, Deployer } from "node_serverless_kit/api";
  * const project = Project.load("nskit.yml", { stage: "prod" });
  * const record = await new Deployer(project).deploy();
  * ```

@@ -7,7 +7,7 @@
  * back to the caller. The caller never builds ARNs, URLs or SDK requests itself.
  */
 
-import { BadRequest, defineHandler, invoke } from "node-serverless-kit";
+import { BadRequest, defineHandler, invoke } from "node_serverless_kit";
 
 /** Tax rates in basis points (1/100 of a percent): integer math, no float rounding issues. */
 const TAX_BPS: Record<string, number> = { DE: 1900, FR: 2000, US: 0, IN: 1800 };

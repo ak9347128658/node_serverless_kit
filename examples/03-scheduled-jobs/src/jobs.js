@@ -8,7 +8,7 @@
 // A job that throws is retried according to the platform's policy, so make jobs
 // idempotent: running the same job twice must be harmless.
 
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

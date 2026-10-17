@@ -152,7 +152,7 @@ export class RenderContext {
     return {
       "nskit-service": this.service,
       "nskit-stage": this.stage,
-      "managed-by": "node-serverless-kit",
+      "managed-by": "node_serverless_kit",
       ...this.config.provider.tags,
       ...(fn?.tags ?? {}),
     };

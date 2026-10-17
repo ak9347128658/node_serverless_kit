@@ -13,7 +13,7 @@
  * the notification.
  */
 
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 
 export const MAX_IMPORT_BYTES = 50 * 1024 * 1024;
 

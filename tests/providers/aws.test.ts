@@ -18,7 +18,7 @@ describe("full render", () => {
     expect(out.terraform.required_providers.aws).toEqual({ source: "hashicorp/aws", version: ">= 5.40" });
     expect(out.terraform.required_version).toBe(">= 1.5.0");
     expect(out.provider.aws).toEqual([
-      { region: "eu-west-1", default_tags: { tags: { "nskit-service": "demo", "nskit-stage": "dev", "managed-by": "node-serverless-kit" } } },
+      { region: "eu-west-1", default_tags: { tags: { "nskit-service": "demo", "nskit-stage": "dev", "managed-by": "node_serverless_kit" } } },
     ]);
   });
 
@@ -63,7 +63,7 @@ describe("full render", () => {
       s3_bucket: "${aws_s3_object.artifact.bucket}",
       s3_key: "${aws_s3_object.artifact.key}",
       depends_on: ["aws_cloudwatch_log_group.logs-hello".replace("logs-hello", "logs_hello")],
-      tags: { "nskit-service": "demo", "nskit-stage": "dev", "managed-by": "node-serverless-kit" },
+      tags: { "nskit-service": "demo", "nskit-stage": "dev", "managed-by": "node_serverless_kit" },
     });
     expect(hello).not.toHaveProperty("filename");
     expect(hello).not.toHaveProperty("reserved_concurrent_executions");
@@ -189,7 +189,7 @@ describe("full render", () => {
     expect(res.aws_s3_bucket.nskit_artifacts).toEqual({
       bucket_prefix: "demo-dev-code-",
       force_destroy: true,
-      tags: { "nskit-service": "demo", "nskit-stage": "dev", "managed-by": "node-serverless-kit" },
+      tags: { "nskit-service": "demo", "nskit-stage": "dev", "managed-by": "node_serverless_kit" },
     });
     expect(res.aws_s3_bucket_public_access_block.nskit_artifacts.block_public_acls).toBe(true);
     expect(res.aws_s3_object.artifact).toEqual({
@@ -213,7 +213,7 @@ describe("full render", () => {
     expect(summary.functions.step).not.toHaveProperty("base_url");
     expect(summary.workflows.pipeline.id).toBe("${aws_sfn_state_machine.wf_pipeline.arn}");
     expect(summary.workflows.pipeline.console).toContain("states/home?region=eu-west-1");
-    expect(out.output.nskit.description).toBe("node-serverless-kit deployment summary");
+    expect(out.output.nskit.description).toBe("node_serverless_kit deployment summary");
   });
 });
 
@@ -545,7 +545,7 @@ describe("workflows", () => {
       description: "Embedded orchestrator for workflow wf",
       tags: expect.objectContaining({ "nskit-workflow": "wf" }),
     });
-    expect(fns.wf_orchestrator.environment.variables.NSKIT_HANDLER).toBe("node-serverless-kit/workflow.orchestrate");
+    expect(fns.wf_orchestrator.environment.variables.NSKIT_HANDLER).toBe("node_serverless_kit/workflow.orchestrate");
     expect(out.resource).not.toHaveProperty("aws_sfn_state_machine");
     expect(values(out.resource.aws_apigatewayv2_route).map((r) => r.route_key)).toEqual(["POST /workflows/wf"]);
     expect(out.output.nskit.value.workflows).toEqual({ wf: { id: "${aws_lambda_function.wf_orchestrator.function_name}" } });

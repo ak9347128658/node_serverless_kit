@@ -5,7 +5,7 @@
 
 import { fileURLToPath } from "node:url";
 import { expect, it, vi } from "vitest";
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 import { discountRate } from "../src/discounts.js";
 
 vi.mock("../src/discounts.js", () => ({ discountRate: vi.fn(async () => 0.5) }));

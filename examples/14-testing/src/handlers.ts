@@ -1,6 +1,6 @@
 /** Handlers under test (see tests/). */
 
-import { BadRequest, BatchResult, defineHandler } from "node-serverless-kit";
+import { BadRequest, BatchResult, defineHandler } from "node_serverless_kit";
 import { discountRate } from "./discounts.js";
 
 const round2 = (n: number) => Math.round(n * 100) / 100;

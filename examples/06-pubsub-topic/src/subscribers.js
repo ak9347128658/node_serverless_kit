@@ -13,10 +13,10 @@
  * Plain JavaScript with `// @ts-check` + JSDoc: editors still type-check it.
  */
 
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 
 /**
- * @param {import("node-serverless-kit").EventRecord} record
+ * @param {import("node_serverless_kit").EventRecord} record
  * @param {Set<string>} allowed
  */
 function wants(record, allowed) {

@@ -56,8 +56,8 @@ jobs:
         env:
           VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          if npm view "node-serverless-kit@$VERSION" version >/dev/null 2>&1; then
-            echo "node-serverless-kit@$VERSION is already published (e.g. the manual first release); skipping npm publish"
+          if npm view "node_serverless_kit@$VERSION" version >/dev/null 2>&1; then
+            echo "node_serverless_kit@$VERSION is already published (e.g. the manual first release); skipping npm publish"
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -89,7 +89,7 @@ jobs:
               // Drop Keep-a-Changelog link references such as "[0.1.0]: https://...".
               body = lines.slice(start + 1, end).filter((l) => !/^\[[^\]]+\]:\s/.test(l)).join(NL).trim() || body;
             }
-            const link = "npm: https://www.npmjs.com/package/node-serverless-kit/v/" + v;
+            const link = "npm: https://www.npmjs.com/package/node_serverless_kit/v/" + v;
             fs.writeFileSync("RELEASE_NOTES.md", body + NL + NL + link + NL);
           '
           cat RELEASE_NOTES.md

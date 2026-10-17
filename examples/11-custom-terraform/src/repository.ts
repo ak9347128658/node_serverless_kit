@@ -7,7 +7,7 @@
  * the handlers don't change.
  */
 
-import { getEnv } from "node-serverless-kit";
+import { getEnv } from "node_serverless_kit";
 
 export interface Order {
   id: string;

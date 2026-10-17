@@ -359,4 +359,4 @@ export async function orchestrate(event: Event, context: Context): Promise<unkno
 }
 
 /** Handler reference used for generated orchestrator functions. */
-export const ORCHESTRATOR_HANDLER = "node-serverless-kit/workflow.orchestrate";
+export const ORCHESTRATOR_HANDLER = "node_serverless_kit/workflow.orchestrate";

@@ -16,8 +16,8 @@
     "paths": {
       "@lib/*": ["./src/lib/*"],
       "@templates/*": ["./templates/*"],
-      // Only used inside the node-serverless-kit repository (type-check against the sources).
-      "node-serverless-kit": ["../../src/index.ts"]
+      // Only used inside the node_serverless_kit repository (type-check against the sources).
+      "node_serverless_kit": ["../../src/index.ts"]
     }
   },
   "include": ["src"]

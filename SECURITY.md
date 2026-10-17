@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Security fixes go into the latest minor release line (currently `0.1.x`). The function runtime is bundled into every deployment artifact, so after upgrading `node-serverless-kit` you must **redeploy** (`nskit deploy`) to pick up a runtime fix.
+Security fixes go into the latest minor release line (currently `0.1.x`). The function runtime is bundled into every deployment artifact, so after upgrading `node_serverless_kit` you must **redeploy** (`nskit deploy`) to pick up a runtime fix.
 
 ## Reporting a vulnerability
 

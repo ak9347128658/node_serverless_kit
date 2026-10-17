@@ -47,7 +47,7 @@ extends: base.yml               # inherit another file (see below)
 | `timeout` | int seconds | `30` | 1–3600, and ≤ the provider's max |
 | `architecture` | `x86_64` \| `arm64` | `x86_64` | Lambda architecture on AWS; also selects the CPU for `npm install` of externals |
 | `environment` | map | `{}` | values are converted to strings (`null` becomes `""`) |
-| `tags` | map | `{}` | merged with `nskit-service`, `nskit-stage`, `managed-by: node-serverless-kit` |
+| `tags` | map | `{}` | merged with `nskit-service`, `nskit-stage`, `managed-by: node_serverless_kit` |
 | `iam.statements` | list of `{effect, actions, resources}` | `[]` | AWS-style; `effect` defaults to `Allow`, `resources` to `["*"]`. Clouds that can't map them ignore them with a warning |
 | `iam.role` | string | — | use an existing role / service account / agency instead of creating one |
 | `logRetentionDays` | int or `null` | `14` | log retention where the provider creates a log group (AWS CloudWatch); `null` = don't create one |

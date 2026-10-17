@@ -11,11 +11,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    // Only used inside the node-serverless-kit repository (type-check against the sources).
+    // Only used inside the node_serverless_kit repository (type-check against the sources).
     // In your own project the installed package is found in node_modules instead.
     "paths": {
-      "node-serverless-kit": ["../../../src/index.ts"],
-      "node-serverless-kit/testing": ["../../../src/testing.ts"]
+      "node_serverless_kit": ["../../../src/index.ts"],
+      "node_serverless_kit/testing": ["../../../src/testing.ts"]
     }
   },
   "include": ["src"]

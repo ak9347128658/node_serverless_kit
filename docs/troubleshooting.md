@@ -126,7 +126,7 @@ Each [provider page](providers.md) lists its limits. The most common ones:
 
 ## FAQ
 
-**Do I add `node-serverless-kit` to my function's dependencies at runtime?**
+**Do I add `node_serverless_kit` to my function's dependencies at runtime?**
 : Install it in your project (`devDependencies` is enough). esbuild bundles the runtime into the artifact; the cloud never installs it.
 
 **Can I keep using cloud SDKs (`@aws-sdk/*`, `@google-cloud/*`)?**

@@ -1,20 +1,20 @@
-# How to release node-serverless-kit to npm (checklist)
+# How to release node_serverless_kit to npm (checklist)
 
 Short version of [PUBLISHING_TO_NPM.md](PUBLISHING_TO_NPM.md). After a release anyone can run:
 
 ```bash
-npm install node-serverless-kit          # or: npm install -D node-serverless-kit
+npm install node_serverless_kit          # or: npm install -D node_serverless_kit
 npx nskit --version
 ```
 
 | | |
 |---|---|
-| npm package | `node-serverless-kit` |
-| CLI | `nskit` (alias `node-serverless-kit`) |
+| npm package | `node_serverless_kit` |
+| CLI | `nskit` (alias `node_serverless_kit`) |
 | Version files | `package.json` and `src/version.ts` (must match) |
-| Author | Asif Khan @ Kavion.ai |
+| Author | Asif Khan |
 
-> Replace `X.Y.Z` with the release version. The first release is `0.1.0`, which is already set in both version files.
+> Replace `X.Y.Z` with the release version. `node_serverless_kit@0.1.0` is already on npm. This release is `0.1.1`, set in both version files.
 >
 > Windows PowerShell 5.1 has no `&&`: run the PowerShell lines one at a time.
 
@@ -25,13 +25,13 @@ npx nskit --version
 - [ ] npm account with 2FA (**Authorization and writes**): <https://www.npmjs.com/signup>
 - [ ] Logged in: `npm login`, then `npm whoami`
 - [ ] Registry is public npm: `npm config get registry` prints `https://registry.npmjs.org/`
-- [ ] Name free (first release only): `npm view node-serverless-kit` returns `E404`
+- [ ] You own the name: `npm view node_serverless_kit version` prints the current release (`0.1.0` before `0.1.1`)
 - [ ] After the first release: configure the **trusted publisher** on npmjs.com (package → Settings → Trusted Publisher → GitHub Actions: user `ak9347128658`, repo `node_serverless_kit`, workflow `release.yml`, environment `npm`). Details: [PUBLISHING_TO_NPM.md, section 3a](PUBLISHING_TO_NPM.md#3a-publish-with-github-actions-recommended).
 
 ## 1. Prepare
 
 - [ ] On `main`, up to date, clean working tree
-- [ ] Bump the version (skip for `0.1.0`)
+- [ ] Bump the version (this release is `0.1.1`)
 - [ ] Edit `src/version.ts` to the same version
 - [ ] Move the **Unreleased** notes in `CHANGELOG.md` to `## [X.Y.Z] - YYYY-MM-DD`
 
@@ -87,17 +87,15 @@ git commit -m "chore(release): vX.Y.Z"
 git tag -a vX.Y.Z -m "vX.Y.Z"
 ```
 
-## 4a. First release (0.1.0): publish manually
+## 4a. Publish 0.1.1 manually
 
-The package must exist on npm before a trusted publisher can be configured.
+`node_serverless_kit@0.1.0` is already on npm under this account. Publish `0.1.1` from this repo. Do not publish `0.1.0` again.
 
 ```bash
 npm whoami
 npm publish --access public       # asks for your 2FA code; or add --otp 123456
 git push origin main --follow-tags
 ```
-
-The tag push starts the release workflow. It sees that `0.1.0` is already on npm, skips "Publish to npm", and still creates the GitHub release from the CHANGELOG section. Then configure the trusted publisher (step 0).
 
 ## 4b. Every later release: push the tag
 
@@ -111,22 +109,22 @@ GitHub Actions checks the version, runs `npm run check`, publishes with provenan
 ## 5. Verify
 
 ```bash
-npm view node-serverless-kit version
-npm view node-serverless-kit dist-tags
-npx -p node-serverless-kit@latest nskit --version
+npm view node_serverless_kit version
+npm view node_serverless_kit dist-tags
+npx -p node_serverless_kit@latest nskit --version
 ```
 
-Check <https://www.npmjs.com/package/node-serverless-kit> (README, version, Provenance) and the GitHub release.
+Check <https://www.npmjs.com/package/node_serverless_kit> (README, version, Provenance) and the GitHub release.
 
 ## Quick troubleshooting
 
 | Problem | Fix |
 |---|---|
 | `EOTP` | Add `--otp <code>` or finish the browser prompt |
-| `E403` / not allowed to publish | `npm whoami`; you must be an owner (`npm owner ls node-serverless-kit`) |
+| `E403` / not allowed to publish | `npm whoami`; you must be an owner (`npm owner ls node_serverless_kit`) |
 | `EPUBLISHCONFLICT` / cannot publish over existing version | Bump the version; numbers can't be reused |
 | `ENEEDAUTH` / `E404` on PUT in CI | Check the trusted publisher fields (repo, `release.yml`, environment `npm`) or the `NPM_TOKEN` secret |
 | `check-version: ... does not match` | Make `package.json`, `src/version.ts` and the tag agree |
-| Broken release | `npm dist-tag add node-serverless-kit@<previous> latest`, then `npm deprecate node-serverless-kit@X.Y.Z "..."` and ship a patch |
+| Broken release | `npm dist-tag add node_serverless_kit@<previous> latest`, then `npm deprecate node_serverless_kit@X.Y.Z "..."` and ship a patch |
 
 Full table: [PUBLISHING_TO_NPM.md, section 7](PUBLISHING_TO_NPM.md#7-troubleshooting).

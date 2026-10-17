@@ -6,7 +6,7 @@
  * same code also runs in Cloudflare Workers' V8 isolates.
  */
 
-import { BadRequest, defineHandler, HttpResponse } from "node-serverless-kit";
+import { BadRequest, defineHandler, HttpResponse } from "node_serverless_kit";
 
 /** e.g. "Node.js/22" on Node, "Cloudflare-Workers" in a Worker. */
 function runtimeName(): string {

@@ -16,7 +16,7 @@ The full text, including the enforcement guidelines (correction, warning, tempor
 
 ## Reporting
 
-Report unacceptable behavior privately to the maintainer, **Asif Khan @ Kavion.ai**, through a [private security advisory](https://github.com/ak9347128658/node_serverless_kit/security/advisories/new) (it is private to the maintainers, so it works for conduct reports too) or by contacting the maintainer through the profile at <https://github.com/ak9347128658>. All reports are reviewed promptly and handled confidentially.
+Report unacceptable behavior privately to the maintainer, **Asif Khan**, through a [private security advisory](https://github.com/ak9347128658/node_serverless_kit/security/advisories/new) (it is private to the maintainers, so it works for conduct reports too) or by contacting the maintainer through the profile at <https://github.com/ak9347128658>. All reports are reviewed promptly and handled confidentially.
 
 ## Attribution
 

@@ -1,4 +1,4 @@
-import { BadRequest, defineHandler, HttpResponse } from "node-serverless-kit";
+import { BadRequest, defineHandler, HttpResponse } from "node_serverless_kit";
 
 /** GET /hello?name=Ada  or  GET /hello/Ada */
 export const hello = defineHandler(async (event, ctx) => {

@@ -20,7 +20,7 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
 nskit version:
 
 ```ts
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 
 export const getOrder = defineHandler(async (event, ctx) => {
   const body = event.http!.json<Record<string, unknown>>({});

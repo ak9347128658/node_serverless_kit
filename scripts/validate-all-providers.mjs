@@ -41,7 +41,7 @@ const DUMMY_OPTIONS = {
   huawei: { apig_instance_id: "00000000000000000000000000000000" },
 };
 
-const HANDLERS = `import type { Context, Event } from "node-serverless-kit";
+const HANDLERS = `import type { Context, Event } from "node_serverless_kit";
 
 export async function api(_event: Event, _ctx: Context) {
   return { ok: true };

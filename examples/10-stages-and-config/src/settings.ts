@@ -6,7 +6,7 @@
  * Cloudflare Workers, so this module is portable.
  */
 
-import { getEnv } from "node-serverless-kit";
+import { getEnv } from "node_serverless_kit";
 
 export interface Settings {
   stage: string;

@@ -22,7 +22,7 @@ import {
   NotFound,
   UnprocessableEntity,
   type HttpRequest,
-} from "node-serverless-kit";
+} from "node_serverless_kit";
 import { bearerToken, verifyHs256 } from "./auth.js";
 import * as store from "./store.js";
 import type { Book } from "./store.js";

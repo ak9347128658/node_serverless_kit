@@ -4,7 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     // Examples import the package by name; point it at the sources.
-    alias: [{ find: /^node-serverless-kit$/, replacement: fileURLToPath(new URL("./src/index.ts", import.meta.url)) }],
+    alias: [{ find: /^node_serverless_kit$/, replacement: fileURLToPath(new URL("./src/index.ts", import.meta.url)) }],
   },
   test: {
     include: ["tests/**/*.test.ts"],

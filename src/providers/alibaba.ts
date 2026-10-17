@@ -138,7 +138,7 @@ export class AlibabaProvider extends Provider {
 
     const wfOut: Record<string, unknown> = {};
     for (const n of Object.keys(cfg.workflows).sort()) wfOut[n] = { id: ref(FUNCTION, tfId(`${n}-orchestrator`), "function_name") };
-    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node-serverless-kit deployment summary" });
+    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node_serverless_kit deployment summary" });
   }
 
   // ------------------------------------------------------------------ pieces
@@ -146,7 +146,7 @@ export class AlibabaProvider extends Provider {
     const role = doc.resource("alicloud_ram_role", "triggers", {
       role_name: ctx.physicalName("triggers").slice(0, 64),
       assume_role_policy_document: TRUST,
-      description: `node-serverless-kit trigger role for ${ctx.prefix}`,
+      description: `node_serverless_kit trigger role for ${ctx.prefix}`,
       force: true,
     });
     doc.resource("alicloud_ram_role_policy_attachment", "triggers-invoke", {

@@ -2,7 +2,7 @@
 
 `before/` is a typical AWS-only service: Node.js Lambda handlers that parse API Gateway / SQS
 events by hand, a SAM template and a hand-written ASL state machine. `after/` is the same service
-on node-serverless-kit. It deploys to AWS first, unchanged in behaviour, and then to GCP, Azure or
+on node_serverless_kit. It deploys to AWS first, unchanged in behaviour, and then to GCP, Azure or
 any other supported cloud by changing the provider.
 
 ```

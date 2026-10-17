@@ -2,7 +2,7 @@
 
 Every directory is a complete project: `cd` into it, `npm install`, then run `npx nskit dev`,
 `npx nskit invoke`, `npx nskit workflow run` or `npx nskit deploy`. Handlers use only the public
-API (`import ... from "node-serverless-kit"`), so each example deploys to every cloud listed for
+API (`import ... from "node_serverless_kit"`), so each example deploys to every cloud listed for
 it by changing only the provider (`npx nskit deploy --provider gcp`).
 
 | # | Example | Language | Shows |
@@ -37,7 +37,7 @@ it by changing only the provider (`npx nskit deploy --provider gcp`).
 
 ## Inside this repository
 
-The examples depend on `node-serverless-kit` like any user project. Inside the repository the
+The examples depend on `node_serverless_kit` like any user project. Inside the repository the
 package name resolves to `src/` instead (esbuild alias while bundling, `paths` in each
 `tsconfig.json` for type checking), so nothing has to be installed:
 

@@ -41,7 +41,7 @@ workflows:
       Boom: {type: fail, error: Nope, cause: always}
 `;
 
-const HANDLERS = `import { BadRequest, BatchResult, HttpResponse } from "node-serverless-kit";
+const HANDLERS = `import { BadRequest, BatchResult, HttpResponse } from "node_serverless_kit";
 
 export const hello = async (event) => {
   const name = event.http.pathParams.name ?? event.http.query.name ?? "world";

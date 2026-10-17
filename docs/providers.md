@@ -26,7 +26,7 @@ Each provider page lists its options, credentials, Terraform resources, artifact
 **Common to all providers**
 
 - Every provider gets `provider.region` (or its default region), `provider.options` (see its page) and `functions.<fn>.options`, which is merged into that provider's function resource as an escape hatch.
-- Resources are tagged or labelled with `nskit-service`, `nskit-stage` and `managed-by: node-serverless-kit` where the cloud supports tags.
+- Resources are tagged or labelled with `nskit-service`, `nskit-stage` and `managed-by: node_serverless_kit` where the cloud supports tags.
 - With no pinned `runtime`, nskit picks nodejs22, or the newest supported version below it (nodejs20 on Alibaba, Tencent and Huawei). See [configuration.md](configuration.md#default-runtime).
 - Each function receives `NSKIT_PROVIDER`, `NSKIT_SERVICE`, `NSKIT_STAGE`, `NSKIT_REGION`, `NSKIT_FUNCTION` and `NSKIT_HANDLER`.
 - If a config uses a trigger, auth mode or option the provider can't honour, `nskit validate` fails with a clear message (or warns when ignoring it is harmless).

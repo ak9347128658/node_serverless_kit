@@ -7,7 +7,7 @@
  * the embedded engine alike - so give custom errors an explicit `name`.
  */
 
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 
 /** Bad input: caught by the workflow -> Rejected state. */
 export class ValidationError extends Error {

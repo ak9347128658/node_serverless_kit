@@ -1,4 +1,4 @@
-import { BadRequest, defineHandler, HttpResponse, NotFound } from "node-serverless-kit";
+import { BadRequest, defineHandler, HttpResponse, NotFound } from "node_serverless_kit";
 import { repository, type Order } from "./repository.js";
 
 /** POST /orders {"item": "book"} -> 201 */

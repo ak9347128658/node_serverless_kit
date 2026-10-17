@@ -5,7 +5,7 @@
 
 import { fileURLToPath } from "node:url";
 import { beforeAll, describe, expect, it } from "vitest";
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 
 const CONFIG = fileURLToPath(new URL("../nskit.yml", import.meta.url));
 

@@ -6,7 +6,7 @@ coverage/
 .npmrc
 npm-debug.log*
 
-# node-serverless-kit working dirs (local terraform state, artifacts)
+# node_serverless_kit working dirs (local terraform state, artifacts)
 .nskit/
 .terraform/
 .terraform.lock.hcl

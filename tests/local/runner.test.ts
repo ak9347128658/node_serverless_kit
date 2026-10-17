@@ -6,7 +6,7 @@ import { setLogSink } from "../../src/runtime/log.js";
 import { dedent, makeProject, tempDir, type TempProject } from "../helpers.js";
 
 const HANDLERS = dedent(`
-  import { BatchResult, HttpResponse, NotFound, type Event, type Context } from "node-serverless-kit";
+  import { BatchResult, HttpResponse, NotFound, type Event, type Context } from "node_serverless_kit";
 
   export async function hello(event: Event, ctx: Context) {
     const req = event.http!;

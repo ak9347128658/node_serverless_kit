@@ -1,7 +1,7 @@
 /**
  * The `__nskit` envelope.
  *
- * Payloads node-serverless-kit itself produces (schedule inputs, workflow
+ * Payloads node_serverless_kit itself produces (schedule inputs, workflow
  * tasks, `invoke()` calls) are wrapped as `{"__nskit": "<kind>", "data": ...}`
  * so adapters on HTTP-only clouds (GCP, IBM, DigitalOcean, Cloudflare, Oracle)
  * can recover the real event type.

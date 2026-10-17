@@ -1,4 +1,4 @@
-import { defineHandler, HttpResponse } from "node-serverless-kit";
+import { defineHandler, HttpResponse } from "node_serverless_kit";
 import { greeting } from "@lib/greeting";
 import { render } from "@lib/render";
 // Embedded into the bundle as a string by esbuild's text loader: no file system access at

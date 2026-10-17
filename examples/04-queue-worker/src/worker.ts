@@ -12,7 +12,7 @@
  * in nskit.yml (where the cloud supports one) instead of blocking the queue forever.
  */
 
-import { BadRequest, defineHandler, HttpResponse, processBatch, type Context, type EventRecord } from "node-serverless-kit";
+import { BadRequest, defineHandler, HttpResponse, processBatch, type Context, type EventRecord } from "node_serverless_kit";
 
 const SUPPORTED_KINDS = new Set(["email", "thumbnail", "invoice"]);
 
@@ -70,7 +70,7 @@ export const auditDeadLetters = defineHandler((event, ctx) => {
  * HTTP producer stub.
  *
  * Sending a message is a cloud SDK call (`@aws-sdk/client-sqs`, `@google-cloud/pubsub`,
- * `@azure/storage-queue`, ...). node-serverless-kit does not wrap these SDKs: keep that one
+ * `@azure/storage-queue`, ...). node_serverless_kit does not wrap these SDKs: keep that one
  * call behind a small function of your own (see README), so the rest stays portable.
  */
 export const enqueue = defineHandler((event, ctx) => {

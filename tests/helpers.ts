@@ -57,7 +57,7 @@ export interface TempProject {
 
 /** Handler module used by most fixtures (TypeScript, imports the package by name). */
 export const HANDLERS_TS = dedent(`
-  import { BatchResult, HttpResponse, NotFound, type Event, type Context } from "node-serverless-kit";
+  import { BatchResult, HttpResponse, NotFound, type Event, type Context } from "node_serverless_kit";
 
   export async function hello(event: Event, ctx: Context) {
     const name = event.http?.pathParams.name ?? event.http?.query.name ?? "world";

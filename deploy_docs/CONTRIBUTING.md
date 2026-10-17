@@ -1,8 +1,8 @@
-# Contributing to node-serverless-kit
+# Contributing to node_serverless_kit
 
 Thanks for helping. This guide covers how the project is organised, how to set up a dev environment, the rules every change must follow, and step-by-step recipes for the common contributions: a config option, an event type, a cloud provider, docs and examples.
 
-node-serverless-kit is the Node.js sibling of [py-serverless-kit](https://github.com/ak9347128658/serverless_kit) and follows the same architecture. When in doubt about a design question, read the matching Python module.
+node_serverless_kit is the Node.js sibling of [py-serverless-kit](https://github.com/ak9347128658/serverless_kit) and follows the same architecture. When in doubt about a design question, read the matching Python module.
 
 ## Ground rules
 
@@ -32,15 +32,15 @@ node bin/nskit.js --version
 cd examples/01-hello-http && node ../../bin/nskit.js validate
 ```
 
-To use your checkout from another project: `npm link` here, then `npm link node-serverless-kit` there (run `npm run dev` to rebuild on change).
+To use your checkout from another project: `npm link` here, then `npm link node_serverless_kit` there (run `npm run dev` to rebuild on change).
 
 ## Project layout
 
 ```
 src/
   index.ts            # runtime public API (zero deps): Event, Context, HttpResponse, errors, BatchResult, invoke, ...
-  testing.ts          # node-serverless-kit/testing: LocalRunner and test helpers
-  api.ts              # node-serverless-kit/api: programmatic API (Project, Deployer, providers, ...)
+  testing.ts          # node_serverless_kit/testing: LocalRunner and test helpers
+  api.ts              # node_serverless_kit/api: programmatic API (Project, Deployer, providers, ...)
   version.ts          # VERSION (kept equal to package.json)
   cli/                # `nskit` commands (commander) and `nskit init` templates
   config/
@@ -116,7 +116,7 @@ platform -> generated entry (installBundle({manifest, handlers}) + Provider.entr
          -> adapter                       result -> native response
 ```
 
-TypeScript runtime sources are bundled directly, and `node-serverless-kit` imports in user code are aliased to `src/index.ts`, so user code and the dispatcher share one copy of the runtime.
+TypeScript runtime sources are bundled directly, and `node_serverless_kit` imports in user code are aliased to `src/index.ts`, so user code and the dispatcher share one copy of the runtime.
 
 Key concepts:
 
@@ -223,7 +223,7 @@ Provider-specific settings belong under `provider.options` / `functions.<fn>.opt
 **Third-party providers** don't need a change to this repository. Publish an npm package whose default export (or `provider` export) is a `Provider` subclass or instance, then either:
 
 - list it in `NSKIT_PROVIDER_PLUGINS` (comma-separated package names, resolved from the project directory), or
-- call `registerProvider(new MyCloudProvider())` / `await loadProviderPlugins(["nskit-provider-mycloud"])` from `node-serverless-kit/api`.
+- call `registerProvider(new MyCloudProvider())` / `await loadProviderPlugins(["nskit-provider-mycloud"])` from `node_serverless_kit/api`.
 
 The loader then accepts `provider: {name: mycloud}`. See [docs/architecture.md](../docs/architecture.md#third-party-providers).
 

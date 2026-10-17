@@ -205,7 +205,7 @@ describe("paths", () => {
   });
 
   it("runtimeSpecifier is a stable kit import, not a relative path", () => {
-    expect(runtimeSpecifier("manifest")).toBe("node-serverless-kit/runtime/manifest");
-    expect(runtimeSpecifier("adapters/cloudflare")).toBe("node-serverless-kit/runtime/adapters/cloudflare");
+    expect(runtimeSpecifier("manifest")).toBe("node_serverless_kit/runtime/manifest");
+    expect(runtimeSpecifier("adapters/cloudflare")).toBe("node_serverless_kit/runtime/adapters/cloudflare");
   });
 });

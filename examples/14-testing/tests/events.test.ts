@@ -2,7 +2,7 @@
 
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { Context, Event, EventRecord, LocalRunner } from "node-serverless-kit/testing";
+import { Context, Event, EventRecord, LocalRunner } from "node_serverless_kit/testing";
 import { ingest, shippedOnly } from "../src/handlers.js";
 
 const CONFIG = fileURLToPath(new URL("../nskit.yml", import.meta.url));

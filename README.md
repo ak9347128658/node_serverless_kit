@@ -1,18 +1,18 @@
-# node-serverless-kit
+# node_serverless_kit
 
 [![CI](https://github.com/ak9347128658/node_serverless_kit/actions/workflows/ci.yml/badge.svg)](https://github.com/ak9347128658/node_serverless_kit/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/node-serverless-kit.svg)](https://www.npmjs.com/package/node-serverless-kit)
+[![npm](https://img.shields.io/npm/v/node_serverless_kit.svg)](https://www.npmjs.com/package/node_serverless_kit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ak9347128658/node_serverless_kit/blob/main/LICENSE)
 
 **Write your Node.js functions once, in TypeScript or JavaScript. Deploy them to any of 10 clouds by changing one line of YAML.**
 
-`node-serverless-kit` (CLI: `nskit`) is a Serverless-Framework-style toolkit built on **esbuild** and **Terraform**. Your handlers use one small, provider-neutral API (`Event`, `Context`, `HttpResponse`). An `nskit.yml` file says which cloud they run on and what triggers them: HTTP, schedules, queues, storage, topics. The same file can define Step Functions-style workflows. `nskit deploy` bundles your code, generates Terraform for the chosen cloud, applies it, and builds an HTML dashboard of everything you deployed. nskit never calls cloud APIs itself.
+`node_serverless_kit` (CLI: `nskit`) is a Serverless-Framework-style toolkit built on **esbuild** and **Terraform**. Your handlers use one small, provider-neutral API (`Event`, `Context`, `HttpResponse`). An `nskit.yml` file says which cloud they run on and what triggers them: HTTP, schedules, queues, storage, topics. The same file can define Step Functions-style workflows. `nskit deploy` bundles your code, generates Terraform for the chosen cloud, applies it, and builds an HTML dashboard of everything you deployed. nskit never calls cloud APIs itself.
 
 It is the Node.js sibling of [py-serverless-kit](https://github.com/ak9347128658/serverless_kit) and uses the same architecture and config model.
 
 ```ts
 // src/orders.ts - identical on AWS, Azure, GCP, Alibaba, Tencent, Huawei, Oracle, IBM, DigitalOcean, Cloudflare
-import { defineHandler, NotFound } from "node-serverless-kit";
+import { defineHandler, NotFound } from "node_serverless_kit";
 
 export const getOrder = defineHandler(async (event, ctx) => {
   const order = await db.find(event.http!.pathParams.id);
@@ -24,7 +24,7 @@ export const getOrder = defineHandler(async (event, ctx) => {
 
 ```js
 // src/orders.cjs - plain JavaScript (CommonJS) works too; ESM .js/.mjs as well
-const { NotFound } = require("node-serverless-kit");
+const { NotFound } = require("node_serverless_kit");
 
 exports.getOrder = async (event) => {
   const order = await db.find(event.http.pathParams.id);
@@ -56,7 +56,7 @@ nskit dashboard --open            # every function, trigger, URL and resource id
 
 ## Why
 
-Teams that build on AWS Lambda and Step Functions end up with code full of API Gateway event parsing, SQS record loops and hand-written ASL. When the business needs another cloud, every function has to be rewritten. `node-serverless-kit` fixes this at both layers:
+Teams that build on AWS Lambda and Step Functions end up with code full of API Gateway event parsing, SQS record loops and hand-written ASL. When the business needs another cloud, every function has to be rewritten. `node_serverless_kit` fixes this at both layers:
 
 | Layer | Locked-in way | With nskit |
 |---|---|---|
@@ -99,8 +99,8 @@ Tiers (stable / beta / experimental) and the exact trigger set per provider are 
 ## Install
 
 ```bash
-npm install --save-dev node-serverless-kit     # per project (recommended): npx nskit ...
-npm install -g node-serverless-kit             # or globally: nskit ...
+npm install --save-dev node_serverless_kit     # per project (recommended): npx nskit ...
+npm install -g node_serverless_kit             # or globally: nskit ...
 ```
 
 Requirements: **Node.js >= 20.19** for the CLI, **Terraform >= 1.5** (or OpenTofu) on your `PATH` for `plan`/`deploy`/`remove`, plus credentials for your cloud. Local development, `validate` and `package` need neither. See [Getting started](https://github.com/ak9347128658/node_serverless_kit/blob/main/docs/getting-started.md).
@@ -167,7 +167,7 @@ functions:
 ```
 
 ```ts
-import { defineHandler, processBatch } from "node-serverless-kit";
+import { defineHandler, processBatch } from "node_serverless_kit";
 
 // Retries only the failed messages where the cloud supports it (SQS); elsewhere the batch is redelivered.
 export const processOrders = defineHandler((event) =>
@@ -271,7 +271,7 @@ Runnable scenarios live in [`examples/`](https://github.com/ak9347128658/node_se
 
 ## Author
 
-Created and maintained by **Asif Khan @ [Kavion.ai](https://kavion.ai)**.
+Created and maintained by **Asif Khan**.
 
 Source code, issues and releases: <https://github.com/ak9347128658/node_serverless_kit>
 

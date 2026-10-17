@@ -12,7 +12,7 @@
  * The business rules themselves (validation, totals, charging) are untouched.
  */
 
-import { BadRequest, BatchResult, defineHandler, HttpResponse, NotFound } from "node-serverless-kit";
+import { BadRequest, BatchResult, defineHandler, HttpResponse, NotFound } from "node_serverless_kit";
 
 interface Item {
   qty: number;

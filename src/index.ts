@@ -1,9 +1,9 @@
 /**
- * node-serverless-kit - write a Node.js function once, deploy it to any cloud.
+ * node_serverless_kit - write a Node.js function once, deploy it to any cloud.
  *
  * Only the *runtime* API is exported here. It has no dependencies, so it is
  * bundled into every deployment. The CLI, config loader and Terraform
- * renderers live behind `node-serverless-kit/api` and are never loaded at
+ * renderers live behind `node_serverless_kit/api` and are never loaded at
  * function runtime.
  */
 

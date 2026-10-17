@@ -158,7 +158,7 @@ export class HuaweiProvider extends Provider {
     doc.output(
       "nskit",
       { functions: fnOut, workflows: wfOut, endpoint: gateway ? gateway.url : null },
-      { description: "node-serverless-kit deployment summary" },
+      { description: "node_serverless_kit deployment summary" },
     );
   }
 
@@ -192,7 +192,7 @@ export class HuaweiProvider extends Provider {
     const group = doc.resource("huaweicloud_apig_group", "http", {
       instance_id: instance,
       name: ctx.prefix.replace(/[^A-Za-z0-9_]/g, "_").slice(0, 64),
-      description: `node-serverless-kit ${ctx.service} (${ctx.stage})`,
+      description: `node_serverless_kit ${ctx.service} (${ctx.stage})`,
       domain_access_enabled: true,
     });
     const env = doc.resource("huaweicloud_apig_environment", "stage", {

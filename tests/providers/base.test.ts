@@ -211,7 +211,7 @@ describe("RenderContext", () => {
   });
 
   it("tags and environment are layered", () => {
-    expect(ctx.tags()).toEqual({ "nskit-service": "svc", "nskit-stage": "prod", "managed-by": "node-serverless-kit", team: "core" });
+    expect(ctx.tags()).toEqual({ "nskit-service": "svc", "nskit-stage": "prod", "managed-by": "node_serverless_kit", team: "core" });
     expect(ctx.tags(config.functions.b)).toMatchObject({ team: "fn", extra: "x" });
     expect(ctx.environment("b", config.functions.b)).toEqual({
       NSKIT_PROVIDER: "dummy",

@@ -165,6 +165,6 @@ export class IbmProvider extends Provider {
     }
     const wfOut: Record<string, unknown> = {};
     for (const n of Object.keys(cfg.workflows).sort()) wfOut[n] = { id: ref(FUNCTION, tfId(`${n}-orchestrator`), "endpoint") };
-    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node-serverless-kit deployment summary" });
+    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node_serverless_kit deployment summary" });
   }
 }

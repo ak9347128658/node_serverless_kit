@@ -1,4 +1,4 @@
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 import { getSettings } from "./settings.js";
 
 /** GET /config - shows which settings the current stage resolved to. */

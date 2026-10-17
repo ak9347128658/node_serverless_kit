@@ -26,7 +26,7 @@ For each deployment, nskit:
 
 Your dependencies from `node_modules` are bundled into that one file. Each handler module is evaluated only when its function is first invoked.
 
-Imports of `node-serverless-kit` in your code are aliased to the installed package's `src/index.ts`, so your code and the nskit dispatcher share **one** copy of the runtime (`instanceof HttpError`, `BatchResult` and module state behave as expected). Install `node-serverless-kit` as a regular dependency or a dev dependency; both work.
+Imports of `node_serverless_kit` in your code are aliased to the installed package's `src/index.ts`, so your code and the nskit dispatcher share **one** copy of the runtime (`instanceof HttpError`, `BatchResult` and module state behave as expected). Install `node_serverless_kit` as a regular dependency or a dev dependency; both work.
 
 Fixed esbuild settings worth knowing: `keepNames: true` (error class names survive for workflow `retry`/`catch`), `legalComments: "none"`, `process.env.NODE_ENV` defined as `"production"`, and for Node ESM output a `createRequire` banner so bundled CommonJS dependencies can still call `require`.
 
@@ -100,7 +100,7 @@ Use `package.esbuild` with care: changing `format`, `platform`, `outfile` or `en
 
 ## Cloudflare Workers (V8 isolates)
 
-Cloudflare runs your code in a V8 isolate, not Node.js. `node:*` built-ins (`fs`, `child_process`, ...) are unavailable unless the platform's Node.js compatibility is enabled, and packages that depend on them won't work. The nskit runtime itself (`node-serverless-kit`) is isolate-safe; use `getEnv()` / `ctx.env` instead of `process.env`. Details: [providers/cloudflare.md](providers/cloudflare.md).
+Cloudflare runs your code in a V8 isolate, not Node.js. `node:*` built-ins (`fs`, `child_process`, ...) are unavailable unless the platform's Node.js compatibility is enabled, and packages that depend on them won't work. The nskit runtime itself (`node_serverless_kit`) is isolate-safe; use `getEnv()` / `ctx.env` instead of `process.env`. Details: [providers/cloudflare.md](providers/cloudflare.md).
 
 ## Examples
 

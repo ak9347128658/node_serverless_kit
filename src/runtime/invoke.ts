@@ -140,7 +140,7 @@ export async function invoke<T = unknown>(fn: string, payload?: unknown, options
     // Service binding NSKIT_BINDING_<FN> (per-function `options.invokes`); the Cloudflare
     // adapter keeps the Worker `env` on globalThis under this key.
     const workerEnv = (globalThis as unknown as Record<symbol, Record<string, unknown> | undefined>)[
-      Symbol.for("node-serverless-kit.cloudflare-env")
+      Symbol.for("node_serverless_kit.cloudflare-env")
     ];
     const binding = workerEnv?.["NSKIT_BINDING_" + fn.replace(/[^A-Za-z0-9]/g, "_").toUpperCase()] as
       | { fetch(url: string, init: RequestInit): Promise<globalThis.Response> }

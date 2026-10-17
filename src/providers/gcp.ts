@@ -376,7 +376,7 @@ export class GcpProvider extends Provider {
     }
 
     const wfOut = this.workflows(doc, ctx, urls, invokerEmail, depends);
-    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint: null }, { description: "node-serverless-kit deployment summary" });
+    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint: null }, { description: "node_serverless_kit deployment summary" });
   }
 
   // ------------------------------------------------------------------ pieces

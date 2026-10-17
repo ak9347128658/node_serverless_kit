@@ -521,7 +521,7 @@ export class AzureProvider extends Provider {
       const http = orch ? eventsOf(orch, "http")[0] : undefined;
       wfOut[name] = { id: `${appName}/${name}-orchestrator`, ...(http ? { url: host + "/" + azureRoute(http.path) } : {}) };
     }
-    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint: host }, { description: "node-serverless-kit deployment summary" });
+    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint: host }, { description: "node_serverless_kit deployment summary" });
   }
 
   /** Storage queues, blob containers and Service Bus resources. */

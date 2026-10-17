@@ -79,7 +79,7 @@ describe("schema: whole-value variables resolve to strings", () => {
 });
 
 describe("invoke() on Cloudflare uses the service binding", () => {
-  const key = Symbol.for("node-serverless-kit.cloudflare-env");
+  const key = Symbol.for("node_serverless_kit.cloudflare-env");
   afterEach(() => {
     delete (globalThis as Record<symbol, unknown>)[key];
     delete process.env.NSKIT_PROVIDER;

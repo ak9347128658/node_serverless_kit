@@ -5,7 +5,7 @@
  * dead-letter behaviour applies.
  */
 
-const HTTP_ERROR = Symbol.for("node-serverless-kit.HttpError");
+const HTTP_ERROR = Symbol.for("node_serverless_kit.HttpError");
 
 export interface HttpErrorOptions {
   status?: number;

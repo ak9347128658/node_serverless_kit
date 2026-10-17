@@ -1,6 +1,6 @@
 "use strict";
 
-const { HttpResponse } = require("node-serverless-kit");
+const { HttpResponse } = require("node_serverless_kit");
 
 /** GET /hello?name=Ada */
 async function handler(event, ctx) {

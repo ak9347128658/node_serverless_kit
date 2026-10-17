@@ -49,7 +49,7 @@ workflows:
 
 const HANDLERS = `
 import { createHash } from "node:crypto";
-import { BatchResult, HttpResponse, defineHandler, getEnv } from "node-serverless-kit";
+import { BatchResult, HttpResponse, defineHandler, getEnv } from "node_serverless_kit";
 
 export const hello = defineHandler(async (event, ctx) => {
   if (event.http?.method === "POST") return { echoed: event.http.json(), path: event.http.path };

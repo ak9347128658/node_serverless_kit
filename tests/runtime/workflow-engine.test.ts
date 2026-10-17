@@ -402,8 +402,8 @@ describe("orchestrate", () => {
         functions: {
           step: { handler: "m.step" },
           boom: { handler: "m.boom" },
-          "pipeline-orchestrator": { handler: "node-serverless-kit/workflow.orchestrate", routes: [{ method: "POST", path: "/workflows/pipeline" }] },
-          "broken-orchestrator": { handler: "node-serverless-kit/workflow.orchestrate" },
+          "pipeline-orchestrator": { handler: "node_serverless_kit/workflow.orchestrate", routes: [{ method: "POST", path: "/workflows/pipeline" }] },
+          "broken-orchestrator": { handler: "node_serverless_kit/workflow.orchestrate" },
         },
         workflows: {
           pipeline: { orchestrator: "pipeline-orchestrator", definition: steps },
@@ -420,7 +420,7 @@ describe("orchestrate", () => {
         "m.boom": () => () => {
           throw new RangeError("kaboom");
         },
-        "node-serverless-kit/workflow.orchestrate": () => orchestrate,
+        "node_serverless_kit/workflow.orchestrate": () => orchestrate,
       },
     });
   });

@@ -39,7 +39,7 @@ Keys are camelCase. snake_case spellings (`start_at`, `result_path`, `max_attemp
 Task handlers receive `event.type === "workflow"` and the state input in `event.data`. Whatever they return is the task result:
 
 ```ts
-import { defineHandler } from "node-serverless-kit";
+import { defineHandler } from "node_serverless_kit";
 
 class ValidationError extends Error {
   override name = "ValidationError";                   // matched by catch: errors: [ValidationError]
@@ -174,7 +174,7 @@ nskit workflow show order-pipeline --format asl                     # auto | asl
 In tests:
 
 ```ts
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 
 const runner = await LocalRunner.fromConfig("nskit.yml");
 const { output, history } = await runner.workflow("order-pipeline", { amount: 50 });

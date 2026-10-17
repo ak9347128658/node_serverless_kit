@@ -1,5 +1,5 @@
 /**
- * Testing helpers: `import { LocalRunner } from "node-serverless-kit/testing"`.
+ * Testing helpers: `import { LocalRunner } from "node_serverless_kit/testing"`.
  *
  * ```ts
  * const runner = await LocalRunner.fromConfig("nskit.yml");

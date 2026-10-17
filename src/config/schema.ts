@@ -37,7 +37,7 @@ export const HOOKS = [
   "afterRemove",
 ] as const;
 
-/** Node.js major versions node-serverless-kit knows about (provider support varies). */
+/** Node.js major versions node_serverless_kit knows about (provider support varies). */
 export const NODE_RUNTIMES = ["nodejs18", "nodejs20", "nodejs22", "nodejs24"] as const;
 export type NodeRuntime = (typeof NODE_RUNTIMES)[number];
 export const PREFERRED_RUNTIME: NodeRuntime = "nodejs22";

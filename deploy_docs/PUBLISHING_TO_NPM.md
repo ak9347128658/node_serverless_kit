@@ -1,14 +1,14 @@
-# Publishing node-serverless-kit to npm
+# Publishing node_serverless_kit to npm
 
-This is the full maintainer guide for releasing **node-serverless-kit** to the public npm registry. For a short checklist, see [How_to_deploy.md](How_to_deploy.md).
+This is the full maintainer guide for releasing **node_serverless_kit** to the public npm registry. For a short checklist, see [How_to_deploy.md](How_to_deploy.md).
 
 | | |
 |---|---|
-| npm package | [`node-serverless-kit`](https://www.npmjs.com/package/node-serverless-kit) |
-| CLI | `nskit` (alias `node-serverless-kit`) |
-| Entry points | `node-serverless-kit`, `node-serverless-kit/testing`, `node-serverless-kit/api` |
+| npm package | [`node_serverless_kit`](https://www.npmjs.com/package/node_serverless_kit) |
+| CLI | `nskit` (alias `node_serverless_kit`) |
+| Entry points | `node_serverless_kit`, `node_serverless_kit/testing`, `node_serverless_kit/api` |
 | Repository | <https://github.com/ak9347128658/node_serverless_kit> |
-| Author | Asif Khan @ Kavion.ai |
+| Author | Asif Khan |
 | License | MIT |
 
 There are two ways to publish:
@@ -48,7 +48,7 @@ If it prints something else (a company mirror), publish with `--registry https:/
 ### 1.3 Verify the package name
 
 ```bash
-npm view node-serverless-kit
+npm view node_serverless_kit
 ```
 
 - `npm error code E404 ... Not Found` means the name is free (expected before the first release).
@@ -126,8 +126,8 @@ The package is defined by the `files` field in `package.json` (there is no `.npm
 Anything else (`tests/`, `examples/`, `.nskit/`, `.env`, `coverage/`, `*.tgz`) means `files` is wrong: fix it before publishing. To inspect the real archive:
 
 ```bash
-npm pack                    # writes node-serverless-kit-X.Y.Z.tgz
-tar -tzf node-serverless-kit-*.tgz
+npm pack                    # writes node_serverless_kit-X.Y.Z.tgz
+tar -tzf node_serverless_kit-*.tgz
 ```
 
 You can also smoke-test the tarball in a scratch project:
@@ -135,7 +135,7 @@ You can also smoke-test the tarball in a scratch project:
 ```bash
 mkdir /tmp/nskit-smoke && cd /tmp/nskit-smoke
 npm init -y
-npm install /path/to/node-serverless-kit-X.Y.Z.tgz
+npm install /path/to/node_serverless_kit-X.Y.Z.tgz
 npx nskit --version
 npx nskit init demo -p aws -t http && cd demo && npx nskit validate
 ```
@@ -172,7 +172,7 @@ The job grants itself `permissions: id-token: write` (OIDC) and `contents: write
 If you can't use trusted publishing (or before it is configured):
 
 1. On npmjs.com: avatar → **Access Tokens** → **Generate New Token** → **Granular Access Token**.
-2. Name `node-serverless-kit-ci`, expiration as short as practical, **Packages and scopes: Read and write**, limited to `node-serverless-kit` (for the very first publish, "all packages" is needed because the package doesn't exist yet). Tick **Bypass two-factor authentication** so CI can publish without an OTP.
+2. Name `node_serverless_kit-ci`, expiration as short as practical, **Packages and scopes: Read and write**, limited to `node_serverless_kit` (for the very first publish, "all packages" is needed because the package doesn't exist yet). Tick **Bypass two-factor authentication** so CI can publish without an OTP.
 3. In GitHub: **Settings → Secrets and variables → Actions → New repository secret**, name `NPM_TOKEN`.
 
 The workflow passes it as `NODE_AUTH_TOKEN`, which `actions/setup-node` writes into the job's `.npmrc`. When a trusted publisher is configured, npm prefers OIDC and the secret is unused (an empty or missing secret is fine). Delete the token once trusted publishing works.
@@ -223,12 +223,12 @@ Provenance is a signed statement, recorded in a public transparency log, that li
 
 ## 4. Dist-tags, pre-releases and beta channels
 
-Every published version has dist-tags. `npm install node-serverless-kit` installs whatever `latest` points to.
+Every published version has dist-tags. `npm install node_serverless_kit` installs whatever `latest` points to.
 
 ```bash
 npm version 0.3.0-beta.0 --no-git-tag-version     # then edit src/version.ts
 npm publish --tag next                            # never publish a pre-release without --tag
-npm install node-serverless-kit@next              # users opt in
+npm install node_serverless_kit@next              # users opt in
 ```
 
 Always pass `--tag` for pre-releases: without it the version is tagged `latest` and every user gets the beta. The release workflow uses `next` automatically for versions with a `-`.
@@ -236,10 +236,10 @@ Always pass `--tag` for pre-releases: without it the version is tagged `latest` 
 Manage tags afterwards:
 
 ```bash
-npm dist-tag ls node-serverless-kit
-npm dist-tag add node-serverless-kit@0.3.0-beta.1 beta
-npm dist-tag add node-serverless-kit@0.3.0 latest       # promote, or roll latest back to an older version
-npm dist-tag rm node-serverless-kit beta
+npm dist-tag ls node_serverless_kit
+npm dist-tag add node_serverless_kit@0.3.0-beta.1 beta
+npm dist-tag add node_serverless_kit@0.3.0 latest       # promote, or roll latest back to an older version
+npm dist-tag rm node_serverless_kit beta
 ```
 
 Rolling `latest` back to the previous good version is the fastest response to a broken release, followed by a fixed patch release.
@@ -251,9 +251,9 @@ Rolling `latest` back to the previous good version is the fastest response to a 
 **Prefer deprecation.** It keeps installs working but prints a warning:
 
 ```bash
-npm deprecate node-serverless-kit@0.2.0 "Broken AWS packaging, upgrade to 0.2.1"
-npm deprecate node-serverless-kit@"< 0.2.1" "Upgrade to 0.2.1 or later"
-npm deprecate node-serverless-kit@0.2.0 ""          # remove the deprecation
+npm deprecate node_serverless_kit@0.2.0 "Broken AWS packaging, upgrade to 0.2.1"
+npm deprecate node_serverless_kit@"< 0.2.1" "Upgrade to 0.2.1 or later"
+npm deprecate node_serverless_kit@0.2.0 ""          # remove the deprecation
 ```
 
 **Unpublishing** is restricted by npm's [unpublish policy](https://docs.npmjs.com/policies/unpublish):
@@ -264,7 +264,7 @@ npm deprecate node-serverless-kit@0.2.0 ""          # remove the deprecation
 - If you unpublish **every** version, nobody (including you) can publish the package name again for **24 hours**.
 
 ```bash
-npm unpublish node-serverless-kit@0.2.0      # one version
+npm unpublish node_serverless_kit@0.2.0      # one version
 ```
 
 Never unpublish to "fix" a release. Deprecate it and publish a patch.
@@ -274,22 +274,22 @@ Never unpublish to "fix" a release. Deprecate it and publish a patch.
 ## 6. Verify the release
 
 ```bash
-npm view node-serverless-kit version          # newest version on latest
-npm view node-serverless-kit dist-tags
-npm view node-serverless-kit@0.2.0 dist.tarball
-npx -p node-serverless-kit@latest nskit --version
-npx node-serverless-kit@latest --version      # same CLI through the package-name bin
+npm view node_serverless_kit version          # newest version on latest
+npm view node_serverless_kit dist-tags
+npm view node_serverless_kit@0.2.0 dist.tarball
+npx -p node_serverless_kit@latest nskit --version
+npx node_serverless_kit@latest --version      # same CLI through the package-name bin
 ```
 
 In a clean directory, confirm both module systems resolve:
 
 ```bash
-npm init -y && npm install node-serverless-kit
-node -e "console.log(require('node-serverless-kit').VERSION)"
-node --input-type=module -e "import { VERSION } from 'node-serverless-kit'; console.log(VERSION)"
+npm init -y && npm install node_serverless_kit
+node -e "console.log(require('node_serverless_kit').VERSION)"
+node --input-type=module -e "import { VERSION } from 'node_serverless_kit'; console.log(VERSION)"
 ```
 
-On <https://www.npmjs.com/package/node-serverless-kit>, check the README renders (images and links are absolute GitHub URLs), the version, the **Provenance** section (CI releases), and the file list under **Code**. Then check the GitHub release and that the README's npm badge shows the new version (it can take a few minutes to refresh).
+On <https://www.npmjs.com/package/node_serverless_kit>, check the README renders (images and links are absolute GitHub URLs), the version, the **Provenance** section (CI releases), and the file list under **Code**. Then check the GitHub release and that the README's npm badge shows the new version (it can take a few minutes to refresh).
 
 Optionally verify signatures and provenance of installed packages:
 
@@ -303,7 +303,7 @@ npm audit signatures
 
 | Error | Cause | Fix |
 |---|---|---|
-| `E403 Forbidden ... You do not have permission to publish "node-serverless-kit"` | The name belongs to another account, or you are logged in as the wrong user | `npm whoami`; `npm owner ls node-serverless-kit`; ask an owner to run `npm owner add <you> node-serverless-kit` |
+| `E403 Forbidden ... You do not have permission to publish "node_serverless_kit"` | The name belongs to another account, or you are logged in as the wrong user | `npm whoami`; `npm owner ls node_serverless_kit`; ask an owner to run `npm owner add <you> node_serverless_kit` |
 | `E403 ... Package name too similar to existing package` | npm's typosquatting protection | Choose another name |
 | `E403 ... Two-factor authentication or granular access token with bypass 2fa enabled is required` | Publishing with a token that can't satisfy 2FA | Use a granular token with **Bypass 2FA**, or trusted publishing |
 | `E403 ... You cannot publish over the previously published versions` | That version exists | Bump the version; versions are immutable |
@@ -311,7 +311,7 @@ npm audit signatures
 | `EOTP This operation requires a one-time password` | 2FA is on for writes | Re-run with `--otp <code>`, or complete the browser prompt. In CI use trusted publishing or a bypass-2FA token |
 | `EPUBLISHCONFLICT` / `Cannot publish over existing version` | The version is already on npm (the release workflow skips publishing in that case; manual publishes don't) | Bump the version. Don't unpublish to free it: the number can't be reused anyway |
 | `ENEEDAUTH This command requires you to be logged in` | No token for the registry | `npm login`; in CI check `registry-url` in `setup-node`, `id-token: write`, and the trusted publisher settings (owner, repo, workflow filename, environment) |
-| `E404 Not Found - PUT https://registry.npmjs.org/node-serverless-kit` | Auth failed (npm returns 404 instead of 401/403 for some token problems), wrong registry, or an OIDC exchange that didn't match | `npm config get registry`; regenerate the token; re-check the trusted publisher fields match exactly |
+| `E404 Not Found - PUT https://registry.npmjs.org/node_serverless_kit` | Auth failed (npm returns 404 instead of 401/403 for some token problems), wrong registry, or an OIDC exchange that didn't match | `npm config get registry`; regenerate the token; re-check the trusted publisher fields match exactly |
 | `E422 ... Error verifying sigstore provenance bundle` / repository mismatch | `repository.url` in `package.json` doesn't match the GitHub repo running the workflow | Fix `repository.url` |
 | `Automatic provenance generation not supported for provider: null` | `--provenance` used outside CI | Drop `--provenance` for manual publishes |
 | Trusted publishing ignored, falls back to token | npm older than 11.5.1 or Node older than 22.14 in the job | Keep the `npm install -g npm@latest` step and Node 22 |

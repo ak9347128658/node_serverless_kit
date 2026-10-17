@@ -99,12 +99,12 @@ On top of these come `provider.environment`, the function's `environment`, and t
 
 ## Testing with `LocalRunner`
 
-`node-serverless-kit/testing` exports `LocalRunner`, which loads `nskit.yml` and drives your handlers in-process:
+`node_serverless_kit/testing` exports `LocalRunner`, which loads `nskit.yml` and drives your handlers in-process:
 
 ```ts
 // tests/handlers.test.ts
 import { describe, expect, it } from "vitest";
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 
 const runner = await LocalRunner.fromConfig("nskit.yml");
 
@@ -167,7 +167,7 @@ Non-HTTP methods reject when the handler throws, just like the platform would re
 
 ```ts
 import { beforeEach, expect, it, vi } from "vitest";
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 
 vi.mock("../src/db.js", () => ({ getOrder: vi.fn(async (id: string) => (id === "1" ? { id } : undefined)) }));
 
@@ -181,15 +181,15 @@ it("returns 404 for unknown orders", async () => {
 });
 ```
 
-`vi.mock` only affects modules loaded through Vitest, so keep the default `mode: "import"`. If your project's `vitest.config.ts` doesn't resolve `node-serverless-kit`, install it as a dev dependency.
+`vi.mock` only affects modules loaded through Vitest, so keep the default `mode: "import"`. If your project's `vitest.config.ts` doesn't resolve `node_serverless_kit`, install it as a dev dependency.
 
 ### Testing a workflow with stub tasks
 
 Use `WorkflowEngine` directly to test the state machine without real handlers:
 
 ```ts
-import { WorkflowEngine } from "node-serverless-kit/testing";
-import { definitionData, loadConfig } from "node-serverless-kit/api";
+import { WorkflowEngine } from "node_serverless_kit/testing";
+import { definitionData, loadConfig } from "node_serverless_kit/api";
 
 const { config } = loadConfig("nskit.yml");
 const engine = new WorkflowEngine(definitionData(config.workflows["order-pipeline"]), async (fn, input) => {

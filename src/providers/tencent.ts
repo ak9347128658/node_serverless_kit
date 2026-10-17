@@ -131,7 +131,7 @@ export class TencentProvider extends Provider {
       doc.resource("tencentcloud_api_gateway_service_release", "release", {
         service_id: ref(service, "id"),
         environment_name: "release",
-        release_desc: `node-serverless-kit ${ctx.artifact.sha256.slice(0, 12)}`,
+        release_desc: `node_serverless_kit ${ctx.artifact.sha256.slice(0, 12)}`,
         depends_on: apis,
       });
       endpoint = "https://" + ref(service, "outer_sub_domain") + "/release";
@@ -139,7 +139,7 @@ export class TencentProvider extends Provider {
 
     const wfOut: Record<string, unknown> = {};
     for (const n of Object.keys(cfg.workflows).sort()) wfOut[n] = { id: ref(FUNCTION, tfId(`${n}-orchestrator`), "name") };
-    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node-serverless-kit deployment summary" });
+    doc.output("nskit", { functions: fnOut, workflows: wfOut, endpoint }, { description: "node_serverless_kit deployment summary" });
   }
 
   // ------------------------------------------------------------------ pieces
@@ -222,7 +222,7 @@ export class TencentProvider extends Provider {
     return doc.resource("tencentcloud_api_gateway_service", "http", {
       service_name: ctx.prefix.replace(/[^A-Za-z0-9_]/g, "_").slice(0, 50),
       protocol: "http&https",
-      service_desc: `node-serverless-kit ${ctx.service} (${ctx.stage})`,
+      service_desc: `node_serverless_kit ${ctx.service} (${ctx.stage})`,
       net_type: ["OUTER"],
       ip_version: "IPv4",
       tags: ctx.tags(),

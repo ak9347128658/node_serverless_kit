@@ -156,7 +156,7 @@ export const DASHBOARD_TEMPLATE = `<!doctype html>
   }
 
   document.getElementById("generated").textContent =
-    "Generated " + when(DATA.generatedAt) + " by node-serverless-kit " + str(DATA.nskitVersion);
+    "Generated " + when(DATA.generatedAt) + " by node_serverless_kit " + str(DATA.nskitVersion);
 
   var providers = {}, stages = {};
   deps.forEach(function (d) { providers[str(d.provider)] = str(d.providerDisplay || d.provider); stages[str(d.stage)] = 1; });

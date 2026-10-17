@@ -7,7 +7,7 @@
  * gateway's JWT authorizer on AWS (`auth: jwt`).
  */
 
-import { Unauthorized } from "node-serverless-kit";
+import { Unauthorized } from "node_serverless_kit";
 
 export interface JwtClaims {
   sub?: string;

@@ -13,7 +13,7 @@ afterAll(() => {
 });
 
 const HANDLERS = `
-import { HttpResponse, type Event } from "node-serverless-kit";
+import { HttpResponse, type Event } from "node_serverless_kit";
 export async function hello(event: Event) {
   const r = HttpResponse.json({ name: event.http?.pathParams.name ?? null, path: event.http?.path }, 201);
   r.setCookie("sid", "1");

@@ -10,7 +10,7 @@
  * - `ctx.remainingTimeMs()` tells long jobs when to stop (undefined if the platform doesn't say).
  */
 
-import { defineHandler, getLogger } from "node-serverless-kit";
+import { defineHandler, getLogger } from "node_serverless_kit";
 
 // A module-level logger for code outside a handler (cold-start work, shared helpers).
 const log = getLogger("async-context", { component: "startup" });

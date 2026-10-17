@@ -4,7 +4,7 @@
 nskit [--version] [-h] <command> [options]
 ```
 
-`node-serverless-kit` is an alias of `nskit`. Installed per project, run it as `npx nskit ...` (or from an npm script).
+`node_serverless_kit` is an alias of `nskit`. Installed per project, run it as `npx nskit ...` (or from an npm script).
 
 ## Common project options
 

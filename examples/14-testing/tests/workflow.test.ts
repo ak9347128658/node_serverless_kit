@@ -2,7 +2,7 @@
 
 import { fileURLToPath } from "node:url";
 import { beforeAll, expect, it } from "vitest";
-import { LocalRunner, WorkflowEngine, WorkflowFailed } from "node-serverless-kit/testing";
+import { LocalRunner, WorkflowEngine, WorkflowFailed } from "node_serverless_kit/testing";
 
 let runner: LocalRunner;
 

@@ -300,7 +300,7 @@ describe("errors", () => {
   });
 
   it("isHttpError works across copies of the library", () => {
-    const foreign = { [Symbol.for("node-serverless-kit.HttpError")]: true, status: 404, message: "x" };
+    const foreign = { [Symbol.for("node_serverless_kit.HttpError")]: true, status: 404, message: "x" };
     expect(isHttpError(foreign)).toBe(true);
     expect(isHttpError(new NotFound())).toBe(true);
     expect(isHttpError(new Error("x"))).toBe(false);
@@ -363,7 +363,7 @@ describe("BatchResult / processBatch", () => {
 
   it("isBatchResult works across copies", () => {
     expect(isBatchResult(new BatchResult())).toBe(true);
-    expect(isBatchResult({ [Symbol.for("node-serverless-kit.BatchResult")]: true, failed: [] })).toBe(true);
+    expect(isBatchResult({ [Symbol.for("node_serverless_kit.BatchResult")]: true, failed: [] })).toBe(true);
     expect(isBatchResult({ failed: [] })).toBe(false);
     expect(isBatchResult(undefined)).toBe(false);
   });

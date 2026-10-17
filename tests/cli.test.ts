@@ -83,10 +83,10 @@ describe("init", () => {
         expect(existsSync(path.join(dir, "tsconfig.json"))).toBe(lang === "ts");
         const pkg = JSON.parse(readFileSync(path.join(dir, "package.json"), "utf-8"));
         expect(pkg.type).toBe("module");
-        expect(pkg.devDependencies["node-serverless-kit"]).toBeTruthy();
+        expect(pkg.devDependencies["node_serverless_kit"]).toBeTruthy();
         expect(Object.keys(pkg.scripts)).toEqual(expect.arrayContaining(["dev", "deploy", "test"]));
-        expect(readFileSync(path.join(dir, `src/handlers.${lang}`), "utf-8")).toContain('from "node-serverless-kit"');
-        expect(readFileSync(path.join(dir, `tests/handlers.test.${lang}`), "utf-8")).toContain('from "node-serverless-kit/testing"');
+        expect(readFileSync(path.join(dir, `src/handlers.${lang}`), "utf-8")).toContain('from "node_serverless_kit"');
+        expect(readFileSync(path.join(dir, `tests/handlers.test.${lang}`), "utf-8")).toContain('from "node_serverless_kit/testing"');
 
         const val = await cli(["validate", "-c", path.join(dir, "nskit.yml")]);
         expect(val.code, val.stdout + val.stderr).toBe(0);

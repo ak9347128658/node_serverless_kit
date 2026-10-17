@@ -1,6 +1,6 @@
 {
-  "name": "node-serverless-kit",
-  "version": "0.1.0",
+  "name": "node_serverless_kit",
+  "version": "0.1.1",
   "description": "Write a Node.js (TypeScript or JavaScript) serverless function once and deploy it to AWS, Azure, GCP and 7 more clouds with one YAML file, powered by Terraform.",
   "keywords": [
     "serverless",
@@ -15,7 +15,7 @@
     "step-functions",
     "typescript"
   ],
-  "author": "Asif Khan @ Kavion.ai",
+  "author": "Asif Khan",
   "license": "MIT",
   "homepage": "https://github.com/ak9347128658/node_serverless_kit#readme",
   "repository": {
@@ -32,7 +32,7 @@
   },
   "bin": {
     "nskit": "bin/nskit.js",
-    "node-serverless-kit": "bin/nskit.js"
+    "node_serverless_kit": "bin/nskit.js"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

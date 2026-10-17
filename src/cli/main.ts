@@ -153,7 +153,7 @@ export function buildProgram(io: CliIO): Command {
   const program = new Command("nskit");
 
   program
-    .description("node-serverless-kit: write Node.js functions once, deploy them to any cloud with Terraform.")
+    .description("node_serverless_kit: write Node.js functions once, deploy them to any cloud with Terraform.")
     .version(VERSION, "-V, --version", "print the version")
     .helpOption("-h, --help", "show help")
     .showSuggestionAfterError(true)

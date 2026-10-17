@@ -177,7 +177,7 @@ function handlersSource(o: RenderOptions): string {
   const imports = ["defineHandler", "HttpResponse", "NotFound"];
   if (events) imports.push("BatchResult");
   let src = `// HTTP handlers. This code runs unchanged on every supported cloud.
-import { ${imports.sort().join(", ")} } from "node-serverless-kit";
+import { ${imports.sort().join(", ")} } from "node_serverless_kit";
 ${ts ? "\ninterface Item {\n  id: string;\n  name: string;\n  [key: string]: unknown;\n}\n" : ""}
 const items${ts ? ": Map<string, Item>" : ""} = new Map([["1", { id: "1", name: "first item" }]]);
 
@@ -259,7 +259,7 @@ function testSource(o: RenderOptions): string {
   const workflow = o.template === "workflow" || o.template === "full";
   const events = o.template === "events" || o.template === "full";
   let src = `import { beforeAll, describe, expect, it } from "vitest";
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 
 let runner${o.lang === "ts" ? ": LocalRunner" : ""};
 
@@ -319,7 +319,7 @@ function packageJson(o: RenderOptions): string {
       ...(o.lang === "ts" ? { typecheck: "tsc --noEmit" } : {}),
     },
     devDependencies: {
-      "node-serverless-kit": `^${VERSION}`,
+      "node_serverless_kit": `^${VERSION}`,
       vitest: "^4.0.0",
       ...(o.lang === "ts" ? { "@types/node": "^22.0.0", typescript: "^5.9.0" } : {}),
     },
@@ -348,7 +348,7 @@ const GITIGNORE = ".nskit/\nnode_modules/\ndist/\ncoverage/\n.env\n.env.*\n";
 function readme(o: RenderOptions): string {
   return `# ${o.service}
 
-Serverless functions built with [node-serverless-kit](https://github.com/ak9347128658/node_serverless_kit).
+Serverless functions built with [node_serverless_kit](https://github.com/ak9347128658/node_serverless_kit).
 Write the handlers once in \`src/handlers.${o.lang}\`, deploy them to ${o.provider} (or any other supported cloud).
 
 \`\`\`bash

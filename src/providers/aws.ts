@@ -169,7 +169,7 @@ export class AwsProvider extends Provider {
     doc.output(
       "nskit",
       { functions: fnOut, workflows: wfOut, endpoint: api ? ref(api, "api_endpoint") : null },
-      { description: "node-serverless-kit deployment summary" },
+      { description: "node_serverless_kit deployment summary" },
     );
   }
 

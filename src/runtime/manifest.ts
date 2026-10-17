@@ -75,7 +75,7 @@ interface RuntimeState {
   bundle?: Bundle;
   resolved: Map<string, AnyHandler>;
 }
-const STATE_KEY = Symbol.for("node-serverless-kit.runtime-state");
+const STATE_KEY = Symbol.for("node_serverless_kit.runtime-state");
 function state(): RuntimeState {
   const g = globalThis as unknown as Record<symbol, RuntimeState | undefined>;
   return (g[STATE_KEY] ??= { resolved: new Map() });

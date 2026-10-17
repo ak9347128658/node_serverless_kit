@@ -12,7 +12,7 @@ Unit and integration tests for serverless handlers with Vitest, without any clou
 ## `LocalRunner`
 
 ```ts
-import { LocalRunner } from "node-serverless-kit/testing";
+import { LocalRunner } from "node_serverless_kit/testing";
 
 const runner = await LocalRunner.fromConfig("nskit.yml", { mode: "import" });
 await runner.http("POST", "/price?code=VIP25", { json: { amount: 100 } });   // -> {status, headers, json(), text, cookies}
@@ -37,7 +37,7 @@ Two loading modes:
 Handlers are ordinary functions. Construct the inputs yourself when you need full control:
 
 ```ts
-import { Context, Event, EventRecord } from "node-serverless-kit/testing";
+import { Context, Event, EventRecord } from "node_serverless_kit/testing";
 
 const event = new Event({ type: "topic", records: [new EventRecord({ id: "1", body: '{"orderId": 7}', attributes: { event_type: "order.shipped" } })] });
 expect(await shippedOnly(event, new Context())).toEqual([7]);

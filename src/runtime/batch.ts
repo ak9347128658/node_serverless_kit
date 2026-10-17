@@ -13,7 +13,7 @@ export class BatchFailure extends Error {
   }
 }
 
-const BATCH_RESULT = Symbol.for("node-serverless-kit.BatchResult");
+const BATCH_RESULT = Symbol.for("node_serverless_kit.BatchResult");
 
 /**
  * Return this from a batch handler to retry only the records that failed.

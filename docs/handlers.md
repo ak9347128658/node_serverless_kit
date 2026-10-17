@@ -1,10 +1,10 @@
 # Handler API
 
-A handler is a function `(event, context) => result`, synchronous or `async`. Everything it needs comes from `node-serverless-kit`, which has no dependencies and runs on Node.js and in V8 isolates (Cloudflare Workers). The same code runs unchanged on every provider.
+A handler is a function `(event, context) => result`, synchronous or `async`. Everything it needs comes from `node_serverless_kit`, which has no dependencies and runs on Node.js and in V8 isolates (Cloudflare Workers). The same code runs unchanged on every provider.
 
 ```ts
 // src/orders.ts
-import { defineHandler, NotFound, HttpResponse, type Event, type Context } from "node-serverless-kit";
+import { defineHandler, NotFound, HttpResponse, type Event, type Context } from "node_serverless_kit";
 
 const ORDERS: Record<string, { id: string; amount: number }> = { "1": { id: "1", amount: 42 } };
 
@@ -50,7 +50,7 @@ Any of these works; esbuild bundles them all (see [typescript-and-javascript.md]
 
 ```ts
 // TypeScript, ESM
-import type { Event, Context } from "node-serverless-kit";
+import type { Event, Context } from "node_serverless_kit";
 export async function hello(event: Event, ctx: Context) {
   return { message: `Hello, ${event.http?.query.name ?? "world"}!` };
 }
@@ -58,7 +58,7 @@ export async function hello(event: Event, ctx: Context) {
 
 ```js
 // JavaScript, ESM (src/hello.mjs, or .js in a "type": "module" package)
-import { BadRequest } from "node-serverless-kit";
+import { BadRequest } from "node_serverless_kit";
 export const hello = async (event) => {
   if (!event.http.query.name) throw new BadRequest("name is required");
   return { message: `Hello, ${event.http.query.name}!` };
@@ -67,7 +67,7 @@ export const hello = async (event) => {
 
 ```js
 // JavaScript, CommonJS (src/hello.cjs, or .js without "type": "module")
-const { HttpResponse } = require("node-serverless-kit");
+const { HttpResponse } = require("node_serverless_kit");
 exports.hello = async (event, ctx) => HttpResponse.text("hi");
 // or: module.exports = async (event) => "hi";   -> handler: src/hello.default
 ```
@@ -251,7 +251,7 @@ For **non-HTTP events** errors propagate unchanged, so the platform's retry and 
 Queue, topic and storage events can carry many records. Return a `BatchResult` to report which ones failed:
 
 ```ts
-import { BatchResult, defineHandler } from "node-serverless-kit";
+import { BatchResult, defineHandler } from "node_serverless_kit";
 
 export const worker = defineHandler(async (event) => {
   const result = new BatchResult();
@@ -269,7 +269,7 @@ export const worker = defineHandler(async (event) => {
 Or let `processBatch` run the loop, optionally concurrently:
 
 ```ts
-import { processBatch } from "node-serverless-kit";
+import { processBatch } from "node_serverless_kit";
 
 export const worker = defineHandler((event, ctx) =>
   processBatch(event.records, (r) => handle(r.json()), {
@@ -294,7 +294,7 @@ export const worker = defineHandler((event, ctx) =>
 Call another function of the same service and get its result, on any cloud:
 
 ```ts
-import { invoke } from "node-serverless-kit";
+import { invoke } from "node_serverless_kit";
 
 const invoice = await invoke<{ id: string }>("billing", { orderId: 1 });
 await invoke("audit", { orderId: 1 }, { async: true });   // fire and forget
@@ -322,7 +322,7 @@ Failures (non-2xx, timeouts, a failed Lambda) reject with `InvokeError`.
 ctx.logger.info("order created", { orderId, amount });
 ctx.logger.error("charge failed", { error: err });       // Error objects are serialized with stack
 
-import { getLogger } from "node-serverless-kit";
+import { getLogger } from "node_serverless_kit";
 const log = getLogger("billing").child({ tenant: "acme" });
 log.debug("cache miss");
 ```
@@ -345,7 +345,7 @@ The dispatcher logs one `request` line per HTTP request (method, path, status, d
 ## Environment
 
 ```ts
-import { env, getEnv } from "node-serverless-kit";
+import { env, getEnv } from "node_serverless_kit";
 
 const table = getEnv("TABLE_NAME", "orders-dev");   // fallback when unset or empty
 const all = env();                                  // same object as ctx.env
@@ -362,4 +362,4 @@ Use these instead of `process.env` in code that should also run on Cloudflare Wo
 | `HandlerNotFound`, `NskitError` | see [Errors](#errors) |
 | `BatchFailure`, `InvokeError` | see above |
 
-Testing helpers (`LocalRunner`, `WorkflowEngine`, `setLogSink`, `setEnv`) live in `node-serverless-kit/testing`; see [local-development.md](local-development.md).
+Testing helpers (`LocalRunner`, `WorkflowEngine`, `setLogSink`, `setEnv`) live in `node_serverless_kit/testing`; see [local-development.md](local-development.md).

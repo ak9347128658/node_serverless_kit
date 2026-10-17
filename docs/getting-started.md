@@ -3,10 +3,10 @@
 ## 1. Install
 
 ```bash
-npm install --save-dev node-serverless-kit    # CLI: npx nskit (alias: node-serverless-kit)
+npm install --save-dev node_serverless_kit    # CLI: npx nskit (alias: node_serverless_kit)
 ```
 
-A global install (`npm install -g node-serverless-kit`) works too; the examples below write `nskit` for brevity, so prefix it with `npx` when it is installed per project.
+A global install (`npm install -g node_serverless_kit`) works too; the examples below write `nskit` for brevity, so prefix it with `npx` when it is installed per project.
 
 Requirements:
 
@@ -16,7 +16,7 @@ Requirements:
 
 You don't need Terraform or credentials for local development, `nskit validate` or `nskit package`.
 
-`node-serverless-kit` is both the CLI and the (zero-dependency) runtime library your handlers import. At deploy time esbuild bundles the runtime into your artifact, so the cloud never installs it.
+`node_serverless_kit` is both the CLI and the (zero-dependency) runtime library your handlers import. At deploy time esbuild bundles the runtime into your artifact, so the cloud never installs it.
 
 ## 2. Scaffold a project
 
@@ -34,7 +34,7 @@ A handler is any exported function `(event, context) => result`, sync or async:
 
 ```ts
 // src/handlers.ts
-import { defineHandler, HttpResponse, NotFound } from "node-serverless-kit";
+import { defineHandler, HttpResponse, NotFound } from "node_serverless_kit";
 
 export const hello = defineHandler(async (event, ctx) => {
   const name = event.http?.query.name ?? "world";
@@ -53,7 +53,7 @@ The same in JavaScript (ESM; CommonJS with `require`/`exports` works too):
 
 ```js
 // src/handlers.js
-import { NotFound } from "node-serverless-kit";
+import { NotFound } from "node_serverless_kit";
 
 export async function hello(event) {
   return { message: `Hello, ${event.http?.query.name ?? "world"}!` };

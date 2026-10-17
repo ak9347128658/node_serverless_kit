@@ -5,7 +5,7 @@ Not every code base is TypeScript or ES modules. This service is classic Node.js
 
 ```js
 // src/hello.js
-const { HttpResponse } = require("node-serverless-kit");
+const { HttpResponse } = require("node_serverless_kit");
 async function handler(event, ctx) { ... }
 module.exports = { handler };            // handler: src/hello.handler
 
