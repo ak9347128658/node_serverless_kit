@@ -18,8 +18,9 @@ const BATCH_RESULT = Symbol.for("node_serverless_kit.BatchResult");
 /**
  * Return this from a batch handler to retry only the records that failed.
  *
- * On AWS SQS it becomes `batchItemFailures`; on every other provider any
- * failure makes the whole invocation fail (and therefore retry).
+ * On AWS SQS it becomes `batchItemFailures`. On-premises and local runs honour
+ * the same per-record list. On every other provider any failure makes the
+ * whole invocation fail (and therefore retry).
  */
 export class BatchResult {
   readonly failed: string[] = [];

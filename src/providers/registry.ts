@@ -20,6 +20,7 @@ import { DigitalOceanProvider } from "./digitalocean.js";
 import { GcpProvider } from "./gcp.js";
 import { HuaweiProvider } from "./huawei.js";
 import { IbmProvider } from "./ibm.js";
+import { OnpremProvider } from "./onprem.js";
 import { OracleProvider } from "./oracle.js";
 import { TencentProvider } from "./tencent.js";
 
@@ -36,6 +37,7 @@ const BUILTIN: Record<string, ProviderFactory> = {
   tencent: () => new TencentProvider(),
   huawei: () => new HuaweiProvider(),
   cloudflare: () => new CloudflareProvider(),
+  onprem: () => new OnpremProvider(),
 };
 
 const plugins = new Map<string, ProviderFactory>();

@@ -14,7 +14,7 @@ it by changing only the provider (`npx nskit deploy --provider gcp`).
 | 05 | [storage-events](05-storage-events) | TypeScript | object created/deleted, prefix/suffix filters, existing buckets |
 | 06 | [pubsub-topic](06-pubsub-topic) | JavaScript (`@ts-check`) | topic fan-out to two subscribers, filter policies |
 | 07 | [workflow-orders](07-workflow-orders) | TypeScript | every workflow state type, retry/catch, choice rules, `events/*.json` inputs |
-| 08 | [multi-cloud](08-multi-cloud) | TypeScript | one code base, **all 10 clouds**: `providers:` overrides and `extends:` files |
+| 08 | [multi-cloud](08-multi-cloud) | TypeScript | one code base, **all 11 targets**: `providers:` overrides and `extends:` files |
 | 09 | [function-invoke](09-function-invoke) | TypeScript | `invoke()` between functions, per-cloud resolution |
 | 10 | [stages-and-config](10-stages-and-config) | TypeScript | `stages:`, `${env:}`, `${opt:}`, `${self:}`, `${file()}`, `.env`, secrets |
 | 11 | [custom-terraform](11-custom-terraform) | TypeScript | `terraform.extra` (DynamoDB), `${tf:...}` references, IAM, remote state, hooks |
@@ -24,6 +24,7 @@ it by changing only the provider (`npx nskit deploy --provider gcp`).
 | 15 | [ci-cd-deploy](15-ci-cd-deploy) | TypeScript | GitHub Actions per-stage deploys with OIDC, remote state |
 | 16 | [javascript-commonjs](16-javascript-commonjs) | JavaScript (CommonJS) | `require()`, `module.exports = { handler }`, `exports.list = ...` |
 | 17 | [typescript-paths](17-typescript-paths) | TypeScript | `tsconfig` path aliases, shared modules, bundled HTML template via `package.esbuild` |
+| 18 | [on-premises](18-on-premises) | TypeScript | every trigger on one machine: built-in broker, or Redis / MinIO / a directory you already run |
 
 ## How they are tested
 
@@ -33,7 +34,7 @@ it by changing only the provider (`npx nskit deploy --provider gcp`).
 - builds the artifact and renders the Terraform for its configured provider;
 - runs its HTTP routes, invoke / queue / topic / storage / schedule calls and workflows locally with
   `LocalRunner` in bundle mode, i.e. through the same esbuild bundle that gets deployed;
-- validates `08-multi-cloud` for all ten providers and each `extends` variant.
+- validates `08-multi-cloud` for all eleven providers and each `extends` variant.
 
 ## Inside this repository
 

@@ -1,4 +1,4 @@
-# One file for all ten clouds. Pick the target with:
+# One file for every target, including on-premises. Pick the target with:
 #   nskit deploy                     -> provider.name below (aws)
 #   nskit deploy --provider gcp      -> applies providers.gcp on top
 #
@@ -79,6 +79,9 @@ providers:
   digitalocean:
     options:                      # deploys with `doctl serverless` (doctl must be on PATH)
       namespace: "${env:DO_FUNCTIONS_NAMESPACE, fn-00000000-0000-0000-0000-000000000000}"
+
+  onprem:
+    region: local                 # one Node.js process on a machine you control; no cloud account
 
   cloudflare:
     options:                      # credentials: CLOUDFLARE_API_TOKEN

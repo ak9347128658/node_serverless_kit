@@ -24,7 +24,7 @@ export const DEFAULT_CORS: Required<CorsSpec> = {
 };
 
 /** Providers that report partial batch failures natively (or show them, locally). */
-const PARTIAL_BATCH_PROVIDERS = new Set(["aws", "local"]);
+const PARTIAL_BATCH_PROVIDERS = new Set(["aws", "local", "onprem"]);
 
 // ---------------------------------------------------------------- routing / CORS
 

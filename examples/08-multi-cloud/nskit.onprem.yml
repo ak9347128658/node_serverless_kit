@@ -1,0 +1,10 @@
+# On-premises: one Node.js process, no cloud account.
+#   nskit deploy -c nskit.onprem.yml
+extends: nskit.yml
+
+provider:
+  name: onprem
+
+providers:
+  onprem:
+    region: local

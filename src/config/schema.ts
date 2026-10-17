@@ -22,6 +22,7 @@ export const PROVIDERS = [
   "tencent",
   "huawei",
   "cloudflare",
+  "onprem",
 ] as const;
 export type BuiltinProvider = (typeof PROVIDERS)[number];
 

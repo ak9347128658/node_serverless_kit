@@ -121,14 +121,16 @@ export async function invoke<T = unknown>(fn: string, payload?: unknown, options
   if (override) return (await httpPost(override, payload, options)) as T;
 
   const provider = getEnv("NSKIT_PROVIDER", "local");
-  if (provider === "local") {
+  // On-premises runs every function of the service in one bundle. An explicit
+  // NSKIT_ENDPOINT_<NAME> (checked above) still forces an HTTP call.
+  if (provider === "local" || provider === "onprem") {
     const [{ Context }, { execute }, { Event, EventType }] = await Promise.all([
       import("./context.js"),
       import("./dispatch.js"),
       import("./event.js"),
     ]);
-    const event = new Event({ type: EventType.INVOKE, provider: "local", functionName: fn, data: payload ?? null });
-    const pending = execute(event, new Context({ functionName: fn }), fn);
+    const event = new Event({ type: EventType.INVOKE, provider, functionName: fn, data: payload ?? null });
+    const pending = execute(event, new Context({ functionName: fn, provider }), fn);
     if (options.async) {
       pending.catch(() => undefined);
       return undefined as T;

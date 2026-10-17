@@ -1,0 +1,17 @@
+{
+  "name": "nskit-example-on-premises",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nskit dev",
+    "typecheck": "tsc --noEmit",
+    "deploy": "nskit deploy"
+  },
+  "dependencies": {
+    "node_serverless_kit": "^0.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

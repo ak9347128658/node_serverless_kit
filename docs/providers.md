@@ -14,6 +14,7 @@ Run `nskit providers` (or `nskit providers --json`) to print this matrix from th
 | [`ibm`](providers/ibm.md) IBM Code Engine | beta | ✅ | – | – | – | – | embedded | nodejs22, 24 | 120 s |
 | [`digitalocean`](providers/digitalocean.md) DigitalOcean Functions | beta | ✅ | ✅ | – | – | – | embedded | nodejs18, 22, 24 | 900 s |
 | [`cloudflare`](providers/cloudflare.md) Cloudflare Workers | beta | ✅ workers.dev / routes | ✅ Cron Triggers | ✅ Queues | – | – | embedded | V8 isolate | 900 s |
+| [`onprem`](providers/onprem.md) On-premises | beta | ✅ | ✅ timers | ✅ built-in, Redis or HTTP | ✅ built-in, directory, S3/MinIO | ✅ built-in, Redis or HTTP | embedded | nodejs18, 20, 22, 24 | 3600 s |
 
 Each provider page lists its options, credentials, Terraform resources, artifact layout and limits.
 
@@ -48,6 +49,7 @@ Every generated configuration passes `terraform validate`; the repository's `scr
 | [ibm](providers/ibm.md) | `IBM-Cloud/ibm` |
 | [digitalocean](providers/digitalocean.md) | built-in `terraform_data` (deploys with `doctl`) |
 | [cloudflare](providers/cloudflare.md) | `cloudflare/cloudflare` |
+| [onprem](providers/onprem.md) | built-in `terraform_data` (default) or `kreuzwerker/docker` |
 
 ## Writing your own provider
 

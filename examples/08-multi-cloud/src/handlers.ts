@@ -1,5 +1,5 @@
 /**
- * One code base, ten clouds. Nothing in this file knows where it runs.
+ * One code base, eleven targets. Nothing in this file knows where it runs.
  *
  * `event.provider` / `ctx.region` are informational only - the logic below is
  * identical on every provider. Only web APIs are used (no `node:*` imports), so the

@@ -10,7 +10,7 @@
     "validate": "nskit validate"
   },
   "dependencies": {
-    "node_serverless_kit": "^0.1.1"
+    "node_serverless_kit": "^0.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

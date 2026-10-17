@@ -29,6 +29,10 @@ stages:
       memory: 512
 
 providers:
+  onprem:
+    region: local
+    state:
+      backend: null          # the s3 backend above is for AWS; on-premises keeps local Terraform state
   gcp:
     region: us-central1
     options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}

@@ -107,7 +107,7 @@ The release workflow copies this section into the GitHub release, so the heading
 ```bash
 npm ci
 npm run check               # typecheck + lint + tests + build (also runs automatically as prepublishOnly)
-npm run validate:terraform  # optional locally (needs Terraform); CI runs it for all 10 providers
+npm run validate:terraform  # optional locally (needs Terraform); CI runs it for all 11 providers
 ```
 
 ### 2.5 Review the tarball

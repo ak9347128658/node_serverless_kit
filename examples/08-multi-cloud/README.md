@@ -1,6 +1,6 @@
-# 08 · Multi-cloud: same code, ten clouds
+# 08 · Multi-cloud: same code, eleven targets
 
-`src/handlers.ts` deploys unchanged to all ten supported clouds. Only the configuration differs,
+`src/handlers.ts` deploys unchanged to all ten clouds and to on-premises. Only the configuration differs,
 and you can organise it in either of two ways.
 
 ## Option A: one file with `providers:` overrides
@@ -18,6 +18,7 @@ npx nskit deploy --provider oracle
 npx nskit deploy --provider ibm
 npx nskit deploy --provider digitalocean
 npx nskit deploy --provider cloudflare
+npx nskit deploy --provider onprem
 ```
 
 ## Option B: one small file per cloud with `extends:`
@@ -49,6 +50,7 @@ service can be live on several clouds at once.
 | ibm | `IC_API_KEY` | Code Engine functions; HTTP only |
 | digitalocean | `options.namespace`, `doctl` on PATH | deployed with `doctl serverless` |
 | cloudflare | `options.account_id` | Workers (V8 isolates: web APIs only, no `node:*` modules) |
+| onprem | nothing | one Node.js process; no cloud account. `nskit deploy -c nskit.onprem.yml` |
 
 Where a cloud lacks a feature, the override says so explicitly: `functions.ticker.events: []` on
 IBM and Oracle deploys `ticker` without a schedule instead of failing. `runtime` is not pinned,

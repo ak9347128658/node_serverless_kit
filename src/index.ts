@@ -49,6 +49,7 @@ export { WorkflowFailed } from "./runtime/workflow.js";
 export { execute } from "./runtime/dispatch.js";
 export { envelope, unwrapEnvelope, ENVELOPE_KEY } from "./runtime/envelope.js";
 export { env, getEnv } from "./runtime/util.js";
+export { deleteObject, publishEvent, putObject, sendMessage, type OnpremBus } from "./runtime/services.js";
 
 /** Anything a handler may return (see the handler docs for how each is mapped). */
 export type HandlerResult = HttpResponse | BatchResult | string | Uint8Array | object | number | boolean | null | void;

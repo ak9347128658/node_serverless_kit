@@ -1,6 +1,6 @@
 # node_serverless_kit documentation
 
-Write a Node.js function once (TypeScript or JavaScript, ESM or CommonJS), describe its triggers in `nskit.yml`, and deploy it to any of 10 clouds with esbuild and Terraform. Moving to another cloud means changing `provider.name`. The handler code stays the same.
+Write a Node.js function once (TypeScript or JavaScript, ESM or CommonJS), describe its triggers in `nskit.yml`, and deploy it to any of 10 clouds, or to a machine you control, with esbuild and Terraform. Moving to another cloud means changing `provider.name`. The handler code stays the same.
 
 | Page | What it covers |
 |---|---|
@@ -19,7 +19,7 @@ Write a Node.js function once (TypeScript or JavaScript, ESM or CommonJS), descr
 | [Migrating from py-serverless-kit](migrating-from-py-serverless-kit.md) | Differences between `pskit` and `nskit` |
 | [Troubleshooting & FAQ](troubleshooting.md) | Common errors, provider gotchas, security notes |
 
-Per-provider pages: [aws](providers/aws.md) · [azure](providers/azure.md) · [gcp](providers/gcp.md) · [alibaba](providers/alibaba.md) · [tencent](providers/tencent.md) · [huawei](providers/huawei.md) · [oracle](providers/oracle.md) · [ibm](providers/ibm.md) · [digitalocean](providers/digitalocean.md) · [cloudflare](providers/cloudflare.md)
+Per-provider pages: [aws](providers/aws.md) · [azure](providers/azure.md) · [gcp](providers/gcp.md) · [alibaba](providers/alibaba.md) · [tencent](providers/tencent.md) · [huawei](providers/huawei.md) · [oracle](providers/oracle.md) · [ibm](providers/ibm.md) · [digitalocean](providers/digitalocean.md) · [cloudflare](providers/cloudflare.md) · [onprem](providers/onprem.md)
 
 Runnable examples for every scenario live in [`../examples`](../examples/).
 

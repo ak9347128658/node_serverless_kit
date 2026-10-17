@@ -331,6 +331,11 @@ const HTTP_CASES: Record<string, HttpCase[]> = {
     },
     { method: "GET", url: "/api/greeting?name=Ada", status: 200, body: { greeting: "Hello, Ada!", maxNameLength: 40 } },
   ],
+  "18-on-premises": [
+    { method: "GET", url: "/health", status: 200, body: { ok: true, provider: "local", label: "api", service: "on-prem" } },
+    { method: "POST", url: "/jobs", options: { json: { kind: "email" } }, status: 202, body: { accepted: true } },
+    { method: "POST", url: "/jobs", options: { json: {} }, status: 400 },
+  ],
 };
 
 // ------------------------------------------------------------------ other local scenarios
@@ -488,6 +493,30 @@ const SCENARIOS: Record<string, Record<string, Scenario>> = {
     "ingest partial failures": async (r) =>
       expect((await r.queue<{ failed: string[] }>("ingest", [{ id: 1 }, "garbage"])).failed).toEqual(["2"]),
   },
+  "18-on-premises": {
+    "partial queue failure": async (r) =>
+      expect((await r.queue<{ failed: string[] }>("worker", [{ kind: "email" }, {}])).failed).toEqual(["2"]),
+    "dead letters": async (r) => expect(await r.queue("audit", [{ kind: "bad" }])).toEqual({ audited: 1 }),
+    "topic filter keeps created events": async (r) => {
+      const out = await r.topic<{ sent: string[] }>("notify", [
+        { body: { id: "a" }, attributes: { type: "created" } },
+        { body: { id: "b" }, attributes: { type: "deleted" } },
+      ]);
+      expect(out.sent).toEqual(["a"]);
+    },
+    "storage created and deleted": async (r) =>
+      expect(
+        await r.storage("files", [
+          { bucket: "uploads", key: "in/note.txt", action: "created" },
+          { bucket: "uploads", key: "in/note.txt", action: "deleted" },
+        ]),
+      ).toEqual({ seen: [{ key: "in/note.txt", action: "created" }, { key: "in/note.txt", action: "deleted" }] }),
+    "schedule input": async (r) => expect(await r.schedule("tick", { kind: "heartbeat" })).toEqual({ ran: true, input: { kind: "heartbeat" } }),
+    "invoke and workflow": async (r) => {
+      expect(await r.invoke("echo", { n: 1 })).toEqual({ n: 1 });
+      expect((await r.workflow("ping", { n: 2 })).output).toEqual({ n: 2 });
+    },
+  },
 };
 
 /**
@@ -542,6 +571,7 @@ it("discovers every example", () => {
     "15-ci-cd-deploy",
     "16-javascript-commonjs",
     "17-typescript-paths",
+    "18-on-premises",
   ]);
   for (const rel of PROJECTS) {
     expect(existsSync(path.join(EXAMPLES, rel.split("/")[0], "README.md")), `${rel} README`).toBe(true);
@@ -579,8 +609,8 @@ describe.each(PROJECTS)("%s", (rel) => {
     PACKAGE_CHECKS[rel]?.(doc, artifact);
   });
 
-  for (const provider of ["aws", "gcp", "azure"]) {
-    const awsOnly = rel === "11-custom-terraform" && provider !== "aws"; // terraform.extra is AWS-specific by design
+  for (const provider of ["aws", "gcp", "azure", "onprem"]) {
+    const awsOnly = rel === "11-custom-terraform" && provider !== "aws" && provider !== "onprem"; // terraform.extra is AWS-specific by design
     if (provider === configured) continue; // covered by the first test
     it.skipIf(awsOnly || !implemented(provider))(`is portable to ${provider}`, () => {
       expect(errors(Project.load(workFile(rel), { provider }))).toEqual([]);
@@ -636,6 +666,7 @@ describe("08-multi-cloud variants", () => {
     ["gcp", "nskit.gcp.yml", "europe-west1"],
     ["azure", "nskit.azure.yml", "northeurope"],
     ["cloudflare", "nskit.cloudflare.yml", ""],
+    ["onprem", "nskit.onprem.yml", "local"],
   ];
   for (const [provider, file, region] of variants) {
     it(`${file} extends nskit.yml`, () => {

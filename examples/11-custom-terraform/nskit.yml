@@ -63,3 +63,13 @@ hooks:
     - npm run typecheck                     # don't ship broken builds
   afterDeploy:
     - node scripts/smoke-test.mjs
+
+# On-premises has no DynamoDB table. Handlers fall back to an in-memory repository
+# unless NSKIT_PROVIDER is aws, and the AWS-only terraform.extra block is left out.
+providers:
+  onprem:
+    region: local
+    environment:
+      ORDERS_TABLE: ""
+    options:
+      drop_terraform_extra: true

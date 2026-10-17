@@ -22,13 +22,13 @@ Keys are camelCase (`batchSize`, `exposeHeaders`). snake_case and kebab-case spe
 
 This table is a summary only. **See [providers.md](providers.md) for the authoritative, current matrix**, or run `nskit providers`.
 
-| Trigger | aws | gcp | azure | alibaba | oracle | ibm | digitalocean | tencent | huawei | cloudflare |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `http` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `schedule` | ✓ | ✓ | ✓ | ✓ | – | – | ✓ | ✓ | ✓ | ✓ |
-| `queue` | ✓ SQS | ✓ Pub/Sub | ✓ Storage Queue | – | – | – | – | – | – | ✓ Queues |
-| `storage` | ✓ S3 | ✓ GCS | ✓ Blob | ✓ OSS | ✓ Object Storage | – | – | ✓ COS | ✓ OBS | – |
-| `topic` | ✓ SNS | ✓ Pub/Sub | ✓ Service Bus | ✓ MNS | – | – | – | – | ✓ SMN | – |
+| Trigger | aws | gcp | azure | alibaba | oracle | ibm | digitalocean | tencent | huawei | cloudflare | onprem |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `http` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `schedule` | ✓ | ✓ | ✓ | ✓ | – | – | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `queue` | ✓ SQS | ✓ Pub/Sub | ✓ Storage Queue | – | – | – | – | – | – | ✓ Queues | ✓ broker / Redis |
+| `storage` | ✓ S3 | ✓ GCS | ✓ Blob | ✓ OSS | ✓ Object Storage | – | – | ✓ COS | ✓ OBS | – | ✓ broker / directory / S3 |
+| `topic` | ✓ SNS | ✓ Pub/Sub | ✓ Service Bus | ✓ MNS | – | – | – | – | ✓ SMN | – | ✓ broker / Redis |
 
 `nskit validate` reports an error for any trigger the selected provider can't support (`<Provider> does not support \`queue\` events in nskit (supported: ...)`), so nothing half-working gets deployed.
 

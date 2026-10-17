@@ -28,6 +28,8 @@ providers:
     options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
     # invoke() calls https://<region>-<project>.cloudfunctions.net/<name> with an ID token.
 
+  onprem:
+    region: local
   azure:
     region: eastus
     options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}

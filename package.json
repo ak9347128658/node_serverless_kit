@@ -1,7 +1,7 @@
 {
   "name": "node_serverless_kit",
-  "version": "0.1.1",
-  "description": "Write a Node.js (TypeScript or JavaScript) serverless function once and deploy it to AWS, Azure, GCP and 7 more clouds with one YAML file, powered by Terraform.",
+  "version": "0.2.0",
+  "description": "Write a Node.js (TypeScript or JavaScript) serverless function once and deploy it to AWS, Azure, GCP, on-premises and 7 more clouds with one YAML file, powered by Terraform.",
   "keywords": [
     "serverless",
     "lambda",
@@ -12,6 +12,7 @@
     "azure",
     "gcp",
     "cloudflare-workers",
+    "on-premises",
     "step-functions",
     "typescript"
   ],

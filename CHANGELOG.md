@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-17
+
+### Added
+
+- On-premises provider (`provider.name: onprem`, tier beta). One Node.js process serves every function. HTTP and schedules need nothing else. Queues, topics and object storage use a broker that starts with the service, or a Redis, HTTP, directory or S3/MinIO endpoint named in `provider.options`. `engine: docker` can start Redis and MinIO beside that process. `invoke()` stays in-process. Workflows use the embedded engine. Handlers publish with `sendMessage`, `publishEvent`, `putObject` and `deleteObject`.
+- Example `18-on-premises`, and an `onprem` override on the other examples so `nskit deploy --provider onprem` validates for each of them.
+
 ## [0.1.1] - 2026-10-17
 
 ### Changed
@@ -37,6 +44,7 @@ Initial release: the Node.js sibling of [py-serverless-kit](https://github.com/a
 - Self-contained HTML deployment dashboard.
 - `scripts/validate-all-providers.mjs` (`npm run validate:terraform`) runs `terraform validate` for every provider; `scripts/check-version.mjs` keeps `package.json` and `src/version.ts` in sync.
 
-[Unreleased]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/ak9347128658/node_serverless_kit/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/ak9347128658/node_serverless_kit/releases/tag/v0.1.0

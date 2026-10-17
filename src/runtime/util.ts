@@ -83,10 +83,26 @@ let envOverride: Record<string, string | undefined> | undefined;
  * Environment variables. On Node this is `process.env`; Cloudflare Workers pass
  * their bindings per request and the adapter installs them with {@link setEnv}.
  */
+/**
+ * Per-invocation environment installed by the on-premises supervisor.
+ *
+ * The supervisor (Node-only) stores an `AsyncLocalStorage` on this symbol.
+ * `getEnv` reads it so concurrent functions in one process keep their own
+ * variables. Isolates that never set the symbol are unchanged.
+ */
+const CALL_ENV = Symbol.for("node_serverless_kit.call-env");
+
+function callEnv(): Record<string, string | undefined> | undefined {
+  const slot = (globalThis as Record<symbol, { getStore?: () => unknown } | undefined>)[CALL_ENV];
+  const store = slot && typeof slot.getStore === "function" ? slot.getStore() : undefined;
+  if (store && typeof store === "object") return store as Record<string, string | undefined>;
+  return undefined;
+}
+
 export function env(): Record<string, string | undefined> {
-  if (envOverride) return envOverride;
-  const proc = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
-  return proc?.env ?? {};
+  const base = envOverride ?? (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
+  const frame = callEnv();
+  return frame ? { ...base, ...frame } : base;
 }
 
 export function getEnv(name: string, fallback?: string): string | undefined {

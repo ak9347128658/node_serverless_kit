@@ -1,0 +1,71 @@
+# Every trigger, on a machine you control.
+#
+#   npx nskit deploy                       # process engine: Node + Terraform, no Docker
+#   npx nskit deploy --provider aws        # same handlers, on AWS
+#
+# Queues, topics and object storage use a broker that starts with the process.
+# Point options.queue / topic / storage at a service you already run, or set
+# engine: docker and queue: redis / storage: minio to start those containers.
+service: on-premises
+
+provider:
+  name: onprem
+  region: local
+  environment:
+    SERVICE_LABEL: on-prem
+  options:
+    http_port: 8080
+
+functions:
+  api:
+    handler: src/handlers.api
+    environment:
+      FN_LABEL: api
+    events:
+      - http: GET /health
+      - http: POST /jobs
+  worker:
+    handler: src/handlers.worker
+    events:
+      - queue: {name: jobs, batchSize: 5, deadLetter: jobs-dlq, maxReceive: 3}
+  audit:
+    handler: src/handlers.audit
+    events:
+      - queue: {name: jobs-dlq, batchSize: 5}
+  notify:
+    handler: src/handlers.notify
+    events:
+      - topic:
+          name: events
+          filter: {type: ["created"]}
+  files:
+    handler: src/handlers.files
+    events:
+      - storage: {bucket: uploads, events: [created, deleted], prefix: in/, suffix: .txt}
+  tick:
+    handler: src/handlers.tick
+    events:
+      - schedule: {rate: 1 hour, input: {kind: heartbeat}}
+  echo:
+    handler: src/handlers.echo
+
+workflows:
+  ping:
+    startAt: Echo
+    states:
+      Echo: {type: task, function: echo, end: true}
+
+providers:
+  aws:
+    region: us-east-1
+  gcp:
+    region: us-central1
+    options: {project: "${env:GOOGLE_CLOUD_PROJECT, my-gcp-project}"}
+  azure:
+    region: eastus
+    options: {subscription_id: "${env:ARM_SUBSCRIPTION_ID, 00000000-0000-0000-0000-000000000000}"}
+    functions:
+      # Blob triggers do not report deletions. Listen for creates only.
+      files:
+        events:
+          - storage: {bucket: uploads, events: [created], prefix: in/, suffix: .txt}

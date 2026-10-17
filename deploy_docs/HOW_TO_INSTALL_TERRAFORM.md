@@ -135,10 +135,10 @@ From a clone of the repository:
 
 ```bash
 npm ci
-npm run validate:terraform                         # all 10 providers
+npm run validate:terraform                         # all 11 providers
 npm run validate:terraform -- --provider aws       # one provider
 ```
 
-The script builds the package if needed, renders a sample project per provider and runs `terraform init -backend=false` plus `terraform validate`. The first run downloads every provider plugin (a few hundred MB). No cloud credentials are needed: `validate` never calls cloud APIs. The output ends with `10/10 providers valid`.
+The script builds the package if needed, renders a sample project per provider and runs `terraform init -backend=false` plus `terraform validate`. The first run downloads every provider plugin (a few hundred MB). No cloud credentials are needed: `validate` never calls cloud APIs. The output ends with `11/11 providers valid`.
 
 Without Terraform the script explains how to install it and exits 0 (use `--strict` to make that an error).

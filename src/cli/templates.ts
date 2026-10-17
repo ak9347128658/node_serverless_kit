@@ -19,6 +19,7 @@ export const DEFAULT_REGIONS: Record<string, string> = {
   tencent: "ap-guangzhou",
   huawei: "cn-north-4",
   cloudflare: "global",
+  onprem: "local",
 };
 
 /**

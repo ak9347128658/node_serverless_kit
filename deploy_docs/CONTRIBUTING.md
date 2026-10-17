@@ -149,7 +149,7 @@ npm run validate:terraform -- --provider aws # real `terraform validate` (networ
 3. Keep PRs focused: one provider or one feature per PR.
 4. Write [Conventional Commits](https://www.conventionalcommits.org/): `feat(gcp): support Cloud Tasks queues`, `fix(runtime): keep multi-value headers`, `docs(cli): document --env-file`. Common scopes: `runtime`, `config`, `cli`, `packaging`, `local`, `dashboard`, `workflows`, and provider names.
 5. Add an entry under **Unreleased** in `CHANGELOG.md`.
-6. Make sure CI is green: tests on Node 20/22/24 (Ubuntu) and Node 22 on Windows/macOS, lint, typecheck, build, `npm pack --dry-run`, and `terraform validate` for all 10 providers.
+6. Make sure CI is green: tests on Node 20/22/24 (Ubuntu) and Node 22 on Windows/macOS, lint, typecheck, build, `npm pack --dry-run`, and `terraform validate` for all 11 providers.
 
 ## Recipes
 
