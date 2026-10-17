@@ -1,9 +1,9 @@
-import { existsSync } from "node:fs";
+import { existsSync, symlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { LocalRunner } from "../../src/local/runner.js";
 import { setLogSink } from "../../src/runtime/log.js";
-import { dedent, makeProject, type TempProject } from "../helpers.js";
+import { dedent, makeProject, tempDir, type TempProject } from "../helpers.js";
 
 const HANDLERS = dedent(`
   import { BatchResult, HttpResponse, NotFound, type Event, type Context } from "node-serverless-kit";
@@ -237,8 +237,22 @@ describe("reload", () => {
     });
     const runner = await LocalRunner.fromConfig(project.configPath, { mode: "bundle" });
     expect(await runner.invoke("v")).toBe(1);
-    const { writeFileSync } = await import("node:fs");
     writeFileSync(path.join(project.root, "src", "v.ts"), "export const get = () => 2;\n");
+    await runner.reload();
+    expect(await runner.invoke("v")).toBe(2);
+  });
+
+  it("picks up source changes when the project path is a symlink", async () => {
+    const project = makeProject("service: reload\nprovider: {name: aws}\nfunctions: {v: {handler: src/v.get}}\n", {
+      "src/v.ts": "export const get = () => 1;\n",
+    });
+    // macOS `os.tmpdir()` is `/var/folders`, a symlink to `/private/var/folders`. The dev-server
+    // test lives there; `require` then caches the bundle under the real path.
+    const linked = path.join(tempDir("nskit-link-"), "proj");
+    symlinkSync(project.root, linked, process.platform === "win32" ? "junction" : "dir");
+    const runner = await LocalRunner.fromConfig(path.join(linked, "nskit.yml"), { mode: "bundle" });
+    expect(await runner.invoke("v")).toBe(1);
+    writeFileSync(path.join(linked, "src", "v.ts"), "export const get = () => 2;\n");
     await runner.reload();
     expect(await runner.invoke("v")).toBe(2);
   });

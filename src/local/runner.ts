@@ -197,7 +197,10 @@ export class LocalRunner {
     const outFile = path.join(dir, "bundle.cjs");
     await bundleEntry(this.project, entry, outFile, { format: "cjs", platform: "node", entryFile: "bundle.cjs" }, `node${process.versions.node.split(".")[0]}`);
     const req = createRequire(outFile);
-    delete req.cache[outFile];
+    // `require` caches by the real path. Deleting `outFile` does nothing when the project is
+    // reached through a symlink — macOS CI temp dirs live under `/var/folders`, which points
+    // at `/private/var/folders` — so a reload kept executing the previous bundle.
+    delete req.cache[req.resolve(outFile)];
     return req(outFile) as RuntimeApi;
   }
 

@@ -12,7 +12,7 @@
  * - Hot reload: `package.source` is watched and the bundle is rebuilt on change.
  */
 
-import { existsSync, readFileSync, watch, type FSWatcher } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync, watch, type FSWatcher } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import path from "node:path";
 import { eventsOf } from "../config/schema.js";
@@ -160,6 +160,53 @@ export interface DevServer {
 }
 
 const IGNORED_DIRS = new Set(["node_modules", ".nskit", ".git", "dist", "coverage", ".turbo", ".cache"]);
+
+/**
+ * Absolute path with symlinks resolved. A missing leaf keeps its name under the real parent,
+ * so `/var/folders/.../.env` and `/private/var/folders/.../.env` still compare equal on macOS.
+ */
+function canonical(file: string): string {
+  try {
+    return realpathSync(file);
+  } catch {
+    try {
+      return path.join(realpathSync(path.dirname(file)), path.basename(file));
+    } catch {
+      return path.resolve(file);
+    }
+  }
+}
+
+/** `mtime+size` of every file that should trigger a reload. Ignored directories are not walked. */
+function sourceStamp(root: string): string {
+  const parts: string[] = [];
+  const walk = (dir: string, rel: string): void => {
+    let entries;
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    for (const ent of entries) {
+      const childRel = rel ? `${rel}/${ent.name}` : ent.name;
+      if (ent.isDirectory()) {
+        if (IGNORED_DIRS.has(ent.name) || ent.name.startsWith(".")) continue;
+        walk(path.join(dir, ent.name), childRel);
+        continue;
+      }
+      if (!ent.isFile() || !isWatchedFile(childRel)) continue;
+      try {
+        const st = statSync(path.join(dir, ent.name));
+        parts.push(`${childRel}:${st.mtimeMs}:${st.size}`);
+      } catch {
+        parts.push(`${childRel}:missing`);
+      }
+    }
+  };
+  walk(root, "");
+  return parts.join("\n");
+}
 
 /** True when a watched path (relative to the source dir) should trigger a reload. */
 export function isWatchedFile(relative: string): boolean {
@@ -356,28 +403,75 @@ export async function startDevServer(runner: LocalRunner, options: DevServerOpti
   // ---------------------------------------------------------------- watching
   let watcher: FSWatcher | undefined;
   let timer: NodeJS.Timeout | undefined;
-  const sourceDir = runner.project.sourceDir;
-  const envFile = options.envFile ? path.resolve(options.envFile) : undefined;
+  let poll: NodeJS.Timeout | undefined;
+  // FSEvents reports the real directory. Watching the symlink (`/var` -> `/private/var`)
+  // drops the event, which is how macOS CI temp projects missed hot reload.
+  const sourceDir = canonical(runner.project.sourceDir);
+  const envFile = options.envFile ? canonical(options.envFile) : undefined;
   if (options.watch ?? true) {
-    const schedule = (what: string) => {
+    let seen = "";
+    try {
+      seen = sourceStamp(sourceDir);
+    } catch {
+      seen = "";
+    }
+    let pendingWhy = "";
+    let pendingForce = false;
+    const flush = (): void => {
+      timer = undefined;
+      const why = pendingWhy || "source";
+      const force = pendingForce;
+      pendingWhy = "";
+      pendingForce = false;
+      let next = seen;
+      try {
+        next = sourceStamp(sourceDir);
+      } catch {
+        if (!force) return;
+      }
+      // A named watch event always rebuilds. A poll, or an event with no filename
+      // (common on macOS), rebuilds only when a watched file's mtime or size changed,
+      // so writing `.nskit/` during the rebuild cannot loop.
+      if (!force && next === seen) return;
+      seen = next;
+      log(`  change detected (${why}), rebuilding...`);
+      void reload().finally(() => {
+        try {
+          seen = sourceStamp(sourceDir);
+        } catch {
+          /* keep the stamp from before this rebuild */
+        }
+      });
+    };
+    const consider = (why: string, force: boolean): void => {
+      pendingForce = pendingForce || force;
+      pendingWhy = why;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
-        timer = undefined;
-        log(`  change detected (${what}), rebuilding...`);
-        void reload();
-      }, options.debounceMs ?? 150);
+      timer = setTimeout(flush, options.debounceMs ?? 150);
     };
     try {
       watcher = watch(sourceDir, { recursive: true }, (_event, filename) => {
-        const rel = filename ? String(filename) : "";
-        if (!rel || !isWatchedFile(rel)) return;
-        if (envFile && path.resolve(sourceDir, rel) !== envFile && /^\.env/.test(path.basename(rel))) return;
-        schedule(rel.split(path.sep).join("/"));
+        const rel = filename ? String(filename).split(path.sep).join("/") : "";
+        if (rel) {
+          if (!isWatchedFile(rel)) return;
+          if (envFile && path.resolve(sourceDir, rel) !== envFile && /^\.env/.test(path.basename(rel))) return;
+          consider(rel, true);
+          return;
+        }
+        consider("source", false);
       });
       watcher.on("error", (err) => log(`  file watching stopped: ${err.message}`));
     } catch (err) {
       log(`  file watching unavailable (${(err as Error).message}); restart to pick up changes`);
     }
+    // macOS arms FSEvents some time after `watch()` returns and can drop events entirely.
+    // Polling the stamp picks up a save the native watcher missed. The interval stays
+    // longer than the debounce so it does not postpone a burst of real events forever.
+    const debounceMs = options.debounceMs ?? 150;
+    poll = setInterval(() => {
+      if (!timer) consider("source", false);
+    }, Math.max(1000, debounceMs + 50));
+    poll.unref?.();
   }
 
   return {
@@ -390,6 +484,7 @@ export async function startDevServer(runner: LocalRunner, options: DevServerOpti
     },
     close: async () => {
       if (timer) clearTimeout(timer);
+      if (poll) clearInterval(poll);
       watcher?.close();
       if (pendingReload) await pendingReload.catch(() => undefined);
       await new Promise<void>((resolve) => {
