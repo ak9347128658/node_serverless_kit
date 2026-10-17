@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Fixed
+
+- Dependabot no longer proposes TypeScript 7.x. `typescript-eslint` 8 peers `typescript >=4.8.4 <6.1.0`, and TypeScript 7.0 does not ship the compiler API that ESLint and tsup use, so `npm ci` fails with `ERESOLVE` in every CI job. TypeScript 6.0.x stays allowed.
+
 ## [0.3.0] - 2026-10-17
 
 ### Added
